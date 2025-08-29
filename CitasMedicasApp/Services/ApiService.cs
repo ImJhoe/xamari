@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using CitasMedicasApp.Models;
 
+
 public class ApiService
 {
     private readonly HttpClient _httpClient;
-    private readonly string _baseUrl = "http://192.168.1.8:8081/webservice-slim";
+    private readonly string _baseUrl = "http://192.168.21.111:8081/webservice-slim";
 
     public ApiService()
     {
@@ -21,61 +22,135 @@ public class ApiService
     // ============ AUTENTICACIÓN ============
     // Nota: No hay endpoint de login en tu API, necesitarás implementarlo
     // Por ahora simulo una respuesta exitosa para pruebas
+    // ============ AUTENTICACIÓN REAL ============
+    // ============ AUTENTICACIÓN REAL - SIN DYNAMIC ============
     public async Task<ApiResponse<Usuario>> LoginAsync(string email, string password)
     {
         try
         {
-            // Tu API no tiene login, simulamos por ahora
-            if (email == "admin@clinicamedica.ec" && password == "123")
+            var data = new
             {
-                return new ApiResponse<Usuario>
+                username = email,  // Tu backend usa 'username', no 'email'
+                password = password
+            };
+
+            var json = JsonConvert.SerializeObject(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{_baseUrl}/auth/login", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                // ✅ USANDO JsonConvert en lugar de dynamic
+                var loginResponse = JsonConvert.DeserializeObject<LoginResponse>(responseContent);
+
+                if (loginResponse != null && loginResponse.success)
                 {
-                    success = true,
-                    message = "Login exitoso",
-                    data = new Usuario
+                    return new ApiResponse<Usuario>
                     {
-                        id = 1,
-                        nombre = "Admin",
-                        email = email,
-                        tipo_usuario = "admin"
-                    }
-                };
+                        success = true,
+                        message = loginResponse.message,
+                        data = new Usuario
+                        {
+                            id = loginResponse.data.user.id,
+                            nombre = loginResponse.data.user.nombres,
+                            apellido = loginResponse.data.user.apellidos,
+                            email = loginResponse.data.user.correo,
+                            username = loginResponse.data.user.username,
+                            tipo_usuario = loginResponse.data.user.rol,
+                            token = loginResponse.data.token
+                        }
+                    };
+                }
+                else
+                {
+                    return new ApiResponse<Usuario>
+                    {
+                        success = false,
+                        message = loginResponse?.message ?? "Credenciales incorrectas"
+                    };
+                }
             }
             else
             {
                 return new ApiResponse<Usuario>
                 {
                     success = false,
-                    message = "Credenciales incorrectas"
+                    message = "Error de autenticación. Verificar credenciales."
                 };
             }
+        }
+        catch (HttpRequestException)
+        {
+            return new ApiResponse<Usuario>
+            {
+                success = false,
+                message = "No se pudo conectar con el servidor. Verifique su conexión."
+            };
+        }
+        catch (TaskCanceledException)
+        {
+            return new ApiResponse<Usuario>
+            {
+                success = false,
+                message = "La solicitud tardó demasiado. Intente nuevamente."
+            };
+        }
+        catch (JsonException)
+        {
+            return new ApiResponse<Usuario>
+            {
+                success = false,
+                message = "Error al procesar la respuesta del servidor."
+            };
         }
         catch (Exception ex)
         {
             return new ApiResponse<Usuario>
             {
                 success = false,
-                message = $"Error de conexión: {ex.Message}"
+                message = $"Error inesperado: {ex.Message}"
             };
         }
     }
 
-    // ============ ESPECIALIDADES ============
     public async Task<ApiResponse<List<Especialidad>>> ObtenerEspecialidadesAsync()
     {
         try
         {
+            // Intentar API primero
             var response = await _httpClient.GetAsync($"{_baseUrl}/api/especialidades");
-            var responseContent = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ApiResponse<List<Especialidad>>>(responseContent);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"API falló: {ex.Message}");
+        }
 
-            return JsonConvert.DeserializeObject<ApiResponse<List<Especialidad>>>(responseContent);
+        // Si API falla, usar base de datos directa
+        try
+        {
+            var dbService = new DatabaseService();
+            var especialidades = await dbService.ObtenerEspecialidadesAsync();
+
+            return new ApiResponse<List<Especialidad>>
+            {
+                success = true,
+                message = "Datos obtenidos desde base de datos local",
+                data = especialidades
+            };
         }
         catch (Exception ex)
         {
             return new ApiResponse<List<Especialidad>>
             {
                 success = false,
-                message = $"Error de conexión: {ex.Message}"
+                message = $"Error en API y BD: {ex.Message}"
             };
         }
     }
@@ -364,6 +439,14 @@ public class ApiService
                 success = false,
                 message = $"Error de conexión: {ex.Message}"
             };
+        }
+    }
+    private void SetAuthorizationHeader(string token)
+    {
+        if (!string.IsNullOrEmpty(token))
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         }
     }
 }

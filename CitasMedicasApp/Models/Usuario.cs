@@ -9,13 +9,17 @@ namespace CitasMedicasApp.Models
     {
         public int id { get; set; }
         public string cedula { get; set; }
+        public string username { get; set; }
         public string nombre { get; set; }
         public string apellido { get; set; }
         public string email { get; set; }
         public string telefono { get; set; }
-        public string tipo_usuario { get; set; }
         public string especialidad { get; set; }
-        public DateTime fecha_registro { get; set; }
+        public string tipo_usuario { get; set; }
+        public string token { get; set; }  // ✅ AGREGAR ESTO
+
+        // Propiedad computed para nombre completo
+        public string nombre_completo => $"{nombre} {apellido}";
     }
 
     // Models/Paciente.cs
@@ -60,6 +64,7 @@ namespace CitasMedicasApp.Models
         public string hora_inicio { get; set; }
         public string hora_fin { get; set; }
         public bool activo { get; set; }
+        public int id_sucursal { get; set; }
     }
 
     // Models/ApiResponse.cs

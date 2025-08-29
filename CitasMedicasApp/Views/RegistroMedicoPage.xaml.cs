@@ -18,41 +18,70 @@ namespace CitasMedicasApp.Views
             InitializeComponent();
             _apiService = new ApiService();
             _horariosControles = new List<HorarioControl>();
-            CargarDatosIniciales();
+
+            // ✅ CORRECCIÓN: Llamar después de InitializeComponent
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                await CargarDatosIniciales();
+            });
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            CargarDatosIniciales();
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                await CargarDatosIniciales();
+            });
         }
 
-        private async void CargarDatosIniciales()
+        // ✅ MÉTODO CORREGIDO
+        private async System.Threading.Tasks.Task CargarDatosIniciales()
         {
             ShowLoading(true);
 
             try
             {
-                // Cargar especialidades
+                // ✅ CORRECCIÓN 1: Cargar especialidades
                 var responseEspecialidades = await _apiService.ObtenerEspecialidadesAsync();
                 if (responseEspecialidades.success && responseEspecialidades.data != null)
                 {
                     _especialidades = responseEspecialidades.data;
-                    EspecialidadPicker.ItemsSource = _especialidades;
-                    EspecialidadPicker.ItemDisplayBinding = new Binding("nombre_especialidad");
+
+                    // ✅ IMPORTANTE: Asignar en el hilo principal
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        EspecialidadPicker.ItemsSource = _especialidades;
+                        EspecialidadPicker.ItemDisplayBinding = new Binding("nombre_especialidad");
+                    });
+                }
+                else
+                {
+                    ShowMessage($"Error al cargar especialidades: {responseEspecialidades.message}", false);
                 }
 
-                // Cargar sucursales
+                // ✅ CORRECCIÓN 2: Cargar sucursales
                 var responseSucursales = await _apiService.ObtenerSucursalesAsync();
                 if (responseSucursales.success && responseSucursales.data != null)
                 {
                     _sucursales = responseSucursales.data;
-                    SucursalPicker.ItemsSource = _sucursales;
-                    SucursalPicker.ItemDisplayBinding = new Binding("nombre_sucursal");
+
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        SucursalPicker.ItemsSource = _sucursales;
+                        SucursalPicker.ItemDisplayBinding = new Binding("nombre_sucursal");
+                    });
+                }
+                else
+                {
+                    ShowMessage($"Error al cargar sucursales: {responseSucursales.message}", false);
                 }
 
-                // Crear controles de horarios
-                CrearControlesHorarios();
+                // ✅ CORRECCIÓN 3: Crear controles de horarios
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    CrearControlesHorarios();
+                });
             }
             catch (Exception ex)
             {
@@ -64,53 +93,60 @@ namespace CitasMedicasApp.Views
             }
         }
 
+        // ✅ MÉTODO CORREGIDO - CrearControlesHorarios
         private void CrearControlesHorarios()
         {
+            // Limpiar controles existentes
             HorariosStackLayout.Children.Clear();
             _horariosControles.Clear();
 
-            foreach (var dia in DiasSemana.Dias)
+            var dias = new[] { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
+
+            foreach (var dia in dias)
             {
-                var horarioControl = new HorarioControl
-                {
-                    DiaSemana = dia.Key,
-                    NombreDia = dia.Value
-                };
+                var horarioControl = new HorarioControl { Dia = dia };
 
                 var frame = new Frame
                 {
-                    BackgroundColor = Color.FromHex("#ecf0f1"),
+                    BackgroundColor = Color.White,
+                    HasShadow = true,
                     CornerRadius = 8,
-                    Padding = 10,
+                    Padding = 15,
                     Margin = new Thickness(0, 5)
                 };
 
-                var stackLayout = new StackLayout
-                {
-                    Orientation = StackOrientation.Vertical,
-                    Spacing = 8
-                };
+                var stackLayout = new StackLayout { Spacing = 10 };
 
-                // Checkbox para habilitar el día
-                var checkBox = new CheckBox
-                {
-                    IsChecked = false
-                };
-                checkBox.CheckedChanged += (s, e) => OnDiaCheckedChanged(horarioControl, e.Value);
-                horarioControl.CheckBox = checkBox;
-
+                // Header con checkbox y día
                 var headerStack = new StackLayout
                 {
                     Orientation = StackOrientation.Horizontal,
-                    Children = { checkBox, new Label { Text = dia.Value, FontAttributes = FontAttributes.Bold, VerticalOptions = LayoutOptions.Center } }
+                    Spacing = 10
                 };
 
-                // Controles de horario
+                var checkbox = new CheckBox();
+                horarioControl.CheckBox = checkbox;
+                checkbox.CheckedChanged += (s, e) => OnDiaCheckedChanged(horarioControl, e.Value);
+
+                var labelDia = new Label
+                {
+                    Text = dia,
+                    FontAttributes = FontAttributes.Bold,
+                    VerticalOptions = LayoutOptions.Center,
+                    TextColor = Color.FromHex("#34495e")
+                };
+
+                headerStack.Children.Add(checkbox);
+                headerStack.Children.Add(labelDia);
+
+                // Grid para horarios
                 var horariosGrid = new Grid
                 {
                     RowDefinitions = { new RowDefinition(), new RowDefinition() },
-                    ColumnDefinitions = { new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                                        new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) } },
+                    ColumnDefinitions = {
+                        new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
+                    },
                     IsVisible = false
                 };
                 horarioControl.HorariosGrid = horariosGrid;
@@ -146,7 +182,108 @@ namespace CitasMedicasApp.Views
 
         private void OnEspecialidadChanged(object sender, EventArgs e)
         {
-            // Aquí podrías filtrar sucursales según la especialidad si es necesario
+            // ✅ CORRECCIÓN 1: Cargar especialidades
+            var responseEspecialidades = await _apiService.ObtenerEspecialidadesAsync();
+            if (responseEspecialidades.success && responseEspecialidades.data != null)
+            {
+                // Se cargan las especialidades...
+            }
+            else
+            {
+                ShowMessage($"Error al cargar especialidades: {responseEspecialidades.message}", false);
+            }
+        }
+
+        // ✅ MÉTODO CORREGIDO - Validar Formulario
+        private bool ValidarFormulario()
+        {
+            if (string.IsNullOrWhiteSpace(CedulaEntry.Text))
+            {
+                ShowMessage("❌ La cédula es obligatoria", false);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(NombreEntry.Text))
+            {
+                ShowMessage("❌ El nombre es obligatorio", false);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(ApellidoEntry.Text))
+            {
+                ShowMessage("❌ El apellido es obligatorio", false);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(EmailEntry.Text))
+            {
+                ShowMessage("❌ El email es obligatorio", false);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(PasswordEntry.Text))
+            {
+                ShowMessage("❌ La contraseña es obligatoria", false);
+                return false;
+            }
+
+            if (EspecialidadPicker.SelectedItem == null)
+            {
+                ShowMessage("❌ Debe seleccionar una especialidad", false);
+                return false;
+            }
+
+            if (SucursalPicker.SelectedItem == null)
+            {
+                ShowMessage("❌ Debe seleccionar una sucursal", false);
+                return false;
+            }
+
+            return true;
+        }
+
+        // ✅ AGREGAR ESTOS MÉTODOS FALTANTES
+        private void ShowLoading(bool show)
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                LoadingIndicator.IsVisible = show;
+                LoadingIndicator.IsRunning = show;
+                RegistrarButton.IsEnabled = !show;
+                LimpiarButton.IsEnabled = !show;
+            });
+        }
+
+        private void ShowMessage(string message, bool isSuccess)
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                await DisplayAlert(isSuccess ? "Éxito" : "Error", message, "OK");
+            });
+        }
+
+        private void LimpiarFormulario()
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                CedulaEntry.Text = "";
+                NombreEntry.Text = "";
+                ApellidoEntry.Text = "";
+                EmailEntry.Text = "";
+                TelefonoEntry.Text = "";
+                PasswordEntry.Text = "";
+                EspecialidadPicker.SelectedItem = null;
+                SucursalPicker.SelectedItem = null;
+
+                // Limpiar horarios
+                foreach (var control in _horariosControles)
+                {
+                    if (control.CheckBox != null)
+                        control.CheckBox.IsChecked = false;
+                    if (control.HorariosGrid != null)
+                        control.HorariosGrid.IsVisible = false;
+                }
+            });
         }
 
         private async void OnRegistrarClicked(object sender, EventArgs e)
@@ -165,7 +302,7 @@ namespace CitasMedicasApp.Views
                     nombre = NombreEntry.Text.Trim(),
                     apellido = ApellidoEntry.Text.Trim(),
                     email = EmailEntry.Text.Trim(),
-                    telefono = TelefonoEntry.Text.Trim(),
+                    telefono = TelefonoEntry.Text?.Trim(),
                     especialidad = ((Especialidad)EspecialidadPicker.SelectedItem)?.nombre_especialidad,
                     tipo_usuario = "medico"
                 };
@@ -217,118 +354,39 @@ namespace CitasMedicasApp.Views
             var horarios = new List<HorarioMedico>();
             var sucursalSeleccionada = (Sucursal)SucursalPicker.SelectedItem;
 
-            if (sucursalSeleccionada == null)
-                return horarios;
+            if (sucursalSeleccionada == null) return horarios;
 
             foreach (var control in _horariosControles)
             {
-                if (control.CheckBox.IsChecked)
+                if (control.CheckBox != null && control.CheckBox.IsChecked)
                 {
                     horarios.Add(new HorarioMedico
                     {
                         id_medico = idMedico,
-                        dia_semana = control.DiaSemana.ToString(),
-                        hora_inicio = control.HoraInicio.Time.ToString(@"hh\:mm"),
-                        hora_fin = control.HoraFin.Time.ToString(@"hh\:mm"),
-                        activo = true
+                        id_sucursal = sucursalSeleccionada.id_sucursal,
+                        dia_semana = control.Dia,
+                        hora_inicio = control.HoraInicio?.Time.ToString(@"hh\:mm") ?? "08:00",
+                        hora_fin = control.HoraFin?.Time.ToString(@"hh\:mm") ?? "17:00"
                     });
                 }
             }
 
             return horarios;
         }
-
-        private bool ValidarFormulario()
-        {
-            if (string.IsNullOrWhiteSpace(CedulaEntry.Text) ||
-                string.IsNullOrWhiteSpace(NombreEntry.Text) ||
-                string.IsNullOrWhiteSpace(ApellidoEntry.Text) ||
-                string.IsNullOrWhiteSpace(EmailEntry.Text) ||
-                string.IsNullOrWhiteSpace(TelefonoEntry.Text) ||
-                string.IsNullOrWhiteSpace(PasswordEntry.Text))
-            {
-                ShowMessage("❌ Por favor complete todos los campos obligatorios", false);
-                return false;
-            }
-
-            if (CedulaEntry.Text.Trim().Length != 10)
-            {
-                ShowMessage("❌ La cédula debe tener 10 dígitos", false);
-                return false;
-            }
-
-            if (PasswordEntry.Text.Length < 6)
-            {
-                ShowMessage("❌ La contraseña debe tener al menos 6 caracteres", false);
-                return false;
-            }
-
-            if (EspecialidadPicker.SelectedItem == null)
-            {
-                ShowMessage("❌ Debe seleccionar una especialidad", false);
-                return false;
-            }
-
-            if (SucursalPicker.SelectedItem == null)
-            {
-                ShowMessage("❌ Debe seleccionar una sucursal", false);
-                return false;
-            }
-
-            return true;
-        }
-
         private void OnLimpiarClicked(object sender, EventArgs e)
         {
             LimpiarFormulario();
         }
-
-        private void LimpiarFormulario()
-        {
-            CedulaEntry.Text = "";
-            NombreEntry.Text = "";
-            ApellidoEntry.Text = "";
-            EmailEntry.Text = "";
-            TelefonoEntry.Text = "";
-            PasswordEntry.Text = "";
-            EspecialidadPicker.SelectedItem = null;
-            SucursalPicker.SelectedItem = null;
-
-            foreach (var control in _horariosControles)
-            {
-                control.CheckBox.IsChecked = false;
-                control.HorariosGrid.IsVisible = false;
-                control.HoraInicio.Time = new TimeSpan(8, 0, 0);
-                control.HoraFin.Time = new TimeSpan(17, 0, 0);
-            }
-
-            MessageLabel.IsVisible = false;
-        }
-
-        private void ShowLoading(bool isLoading)
-        {
-            LoadingIndicator.IsVisible = isLoading;
-            LoadingIndicator.IsRunning = isLoading;
-            RegistrarButton.IsEnabled = !isLoading;
-            LimpiarButton.IsEnabled = !isLoading;
-        }
-
-        private void ShowMessage(string message, bool isSuccess)
-        {
-            MessageLabel.Text = message;
-            MessageLabel.TextColor = isSuccess ? Color.Green : Color.Red;
-            MessageLabel.IsVisible = true;
-        }
-
-        // Clase auxiliar para manejar controles de horarios
-        private class HorarioControl
-        {
-            public int DiaSemana { get; set; }
-            public string NombreDia { get; set; }
-            public CheckBox CheckBox { get; set; }
-            public Grid HorariosGrid { get; set; }
-            public TimePicker HoraInicio { get; set; }
-            public TimePicker HoraFin { get; set; }
-        }
     }
+
+    // ✅ CLASE AUXILIAR
+    public class HorarioControl
+    {
+        public string Dia { get; set; }
+        public CheckBox CheckBox { get; set; }
+        public Grid HorariosGrid { get; set; }
+        public TimePicker HoraInicio { get; set; }
+        public TimePicker HoraFin { get; set; }
+    }
+
 }
