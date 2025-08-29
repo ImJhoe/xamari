@@ -2,141 +2,214 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="CitasMedicasApp.Views.MenuPrincipalPage"
-             Title="Sistema de Citas Médicas"
+             Title="Citas Médicas - Menú Principal"
              BackgroundColor="#f8f9fa">
 
     <ScrollView>
         <StackLayout Padding="20" Spacing="20">
 
             <!-- Header -->
-            <Frame BackgroundColor="#3498db" 
-                   HasShadow="True" 
-                   CornerRadius="15"
-                   Padding="20">
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="15" Padding="20">
                 <StackLayout>
-                    <Label Text="🏥 Sistema de Citas Médicas" 
+                    <Label Text="🏥 SISTEMA DE CITAS MÉDICAS" 
                            FontSize="24" 
                            FontAttributes="Bold"
-                           TextColor="White"
-                           HorizontalOptions="Center"/>
-                    <Label Text="Gestión integral de citas médicas" 
-                           FontSize="14"
-                           TextColor="White"
                            HorizontalOptions="Center"
-                           Opacity="0.9"/>
+                           TextColor="#2c3e50"/>
+
+                    <Label x:Name="WelcomeLabel" 
+                           Text="Bienvenido al sistema" 
+                           FontSize="16"
+                           TextColor="#7f8c8d"
+                           HorizontalOptions="Center"
+                           Margin="0,10,0,0"/>
                 </StackLayout>
             </Frame>
 
-            <!-- Menú de opciones -->
-            <Grid RowDefinitions="*, *, *" 
-                  ColumnDefinitions="*, *" 
-                  RowSpacing="15" 
-                  ColumnSpacing="15">
+            <!-- Gestión de Médicos -->
+            <Label Text="👨‍⚕️ GESTIÓN DE MÉDICOS" 
+                   FontSize="18" 
+                   FontAttributes="Bold" 
+                   TextColor="#2c3e50"
+                   Margin="0,10,0,0"/>
 
-                <!-- Ver Citas -->
-                <Frame Grid.Row="0" Grid.Column="0"
-                       BackgroundColor="White"
-                       HasShadow="True"
-                       CornerRadius="15">
-                    <StackLayout>
-                        <Button Text="📅&#x0a;Ver Citas"
-                                FontSize="16"
-                                BackgroundColor="Transparent"
-                                TextColor="#2c3e50"
-                                Clicked="OnVerCitasClicked"
-                                HeightRequest="80"/>
+            <Grid RowDefinitions="*, *" ColumnDefinitions="*, *" RowSpacing="15" ColumnSpacing="15">
+
+                <!-- Registro Médico -->
+                <Frame Grid.Row="0" Grid.Column="0" 
+                       BackgroundColor="#3498db" 
+                       HasShadow="True" 
+                       CornerRadius="15"
+                       Padding="0">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRegistroMedicoTapped"/>
+                    </Frame.GestureRecognizers>
+                    <StackLayout HorizontalOptions="Center" 
+                                 VerticalOptions="Center" 
+                                 Padding="20">
+                        <Label Text="➕" FontSize="30" HorizontalOptions="Center" TextColor="White"/>
+                        <Label Text="Registrar" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               FontSize="14"/>
+                        <Label Text="Médico" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               FontSize="14"/>
                     </StackLayout>
                 </Frame>
 
-                <!-- Crear Cita -->
-                <Frame Grid.Row="0" Grid.Column="1"
-                       BackgroundColor="White"
-                       HasShadow="True"
-                       CornerRadius="15">
-                    <StackLayout>
-                        <Button Text="➕&#x0a;Crear Cita"
-                                FontSize="16"
-                                BackgroundColor="Transparent"
-                                TextColor="#27ae60"
-                                Clicked="OnCrearCitaClicked"
-                                HeightRequest="80"/>
-                    </StackLayout>
-                </Frame>
-
-                <!-- Consultar Médico -->
-                <Frame Grid.Row="1" Grid.Column="0"
-                       BackgroundColor="White"
-                       HasShadow="True"
-                       CornerRadius="15">
-                    <StackLayout>
-                        <Button Text="👨‍⚕️&#x0a;Consultar Médico"
-                                FontSize="16"
-                                BackgroundColor="Transparent"
-                                TextColor="#3498db"
-                                Clicked="OnConsultarMedicoClicked"
-                                HeightRequest="80"/>
-                    </StackLayout>
-                </Frame>
-
-                <!-- Editar Horarios -->
-                <Frame Grid.Row="1" Grid.Column="1"
-                       BackgroundColor="White"
-                       HasShadow="True"
-                       CornerRadius="15">
-                    <StackLayout>
-                        <Button Text="🕐&#x0a;Editar Horarios"
-                                FontSize="16"
-                                BackgroundColor="Transparent"
-                                TextColor="#e67e22"
-                                Clicked="OnEditarHorariosClicked"
-                                HeightRequest="80"/>
-                    </StackLayout>
-                </Frame>
-
-                <!-- Registrar Médico -->
-                <Frame Grid.Row="2" Grid.Column="0"
-                       BackgroundColor="White"
-                       HasShadow="True"
-                       CornerRadius="15">
-                    <StackLayout>
-                        <Button Text="👨‍⚕️➕&#x0a;Registrar Médico"
-                                FontSize="16"
-                                BackgroundColor="Transparent"
-                                TextColor="#9b59b6"
-                                Clicked="OnRegistroMedicoClicked"
-                                HeightRequest="80"/>
-                    </StackLayout>
-                </Frame>
-
-                <!-- Registrar Paciente -->
-                <Frame Grid.Row="2" Grid.Column="1"
-                       BackgroundColor="White"
-                       HasShadow="True"
-                       CornerRadius="15">
-                    <StackLayout>
-                        <Button Text="👤➕&#x0a;Registrar Paciente"
-                                FontSize="16"
-                                BackgroundColor="Transparent"
-                                TextColor="#e74c3c"
-                                Clicked="OnRegistroPacienteClicked"
-                                HeightRequest="80"/>
+                <!-- Consultar Médicos -->
+                <Frame Grid.Row="0" Grid.Column="1" 
+                       BackgroundColor="#2ecc71" 
+                       HasShadow="True" 
+                       CornerRadius="15"
+                       Padding="0">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnConsultarMedicoTapped"/>
+                    </Frame.GestureRecognizers>
+                    <StackLayout HorizontalOptions="Center" 
+                                 VerticalOptions="Center" 
+                                 Padding="20">
+                        <Label Text="👨‍⚕️" FontSize="30" HorizontalOptions="Center"/>
+                        <Label Text="Consultar" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               FontSize="14"/>
+                        <Label Text="Médicos" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               FontSize="14"/>
                     </StackLayout>
                 </Frame>
 
             </Grid>
 
-            <!-- Footer -->
-            <Frame BackgroundColor="#34495e" 
-                   HasShadow="True" 
-                   CornerRadius="10"
-                   Margin="0,20,0,0">
-                <Label Text="Sistema desarrollado para gestión médica" 
-                       TextColor="White"
-                       FontSize="12"
-                       HorizontalOptions="Center"/>
-            </Frame>
+            <!-- Gestión de Citas -->
+            <Label Text="📋 GESTIÓN DE CITAS" 
+                   FontSize="18" 
+                   FontAttributes="Bold" 
+                   TextColor="#2c3e50"
+                   Margin="0,20,0,0"/>
+
+            <Grid RowDefinitions="*, *" ColumnDefinitions="*, *" RowSpacing="15" ColumnSpacing="15">
+
+                <!-- Crear Cita -->
+                <Frame Grid.Row="0" Grid.Column="0" 
+                       BackgroundColor="#e74c3c" 
+                       HasShadow="True" 
+                       CornerRadius="15"
+                       Padding="0">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCrearCitaTapped"/>
+                    </Frame.GestureRecognizers>
+                    <StackLayout HorizontalOptions="Center" 
+                                 VerticalOptions="Center" 
+                                 Padding="20">
+                        <Label Text="📅" FontSize="30" HorizontalOptions="Center"/>
+                        <Label Text="Crear" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               FontSize="14"/>
+                        <Label Text="Cita" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               FontSize="14"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Ver Citas -->
+                <Frame Grid.Row="0" Grid.Column="1" 
+                       BackgroundColor="#9b59b6" 
+                       HasShadow="True" 
+                       CornerRadius="15"
+                       Padding="0">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnVerCitasTapped"/>
+                    </Frame.GestureRecognizers>
+                    <StackLayout HorizontalOptions="Center" 
+                                 VerticalOptions="Center" 
+                                 Padding="20">
+                        <Label Text="📊" FontSize="30" HorizontalOptions="Center"/>
+                        <Label Text="Ver" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               FontSize="14"/>
+                        <Label Text="Citas" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               FontSize="14"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Registrar Paciente -->
+                <Frame Grid.Row="1" Grid.Column="0" 
+                       BackgroundColor="#f39c12" 
+                       HasShadow="True" 
+                       CornerRadius="15"
+                       Padding="0">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRegistroPacienteTapped"/>
+                    </Frame.GestureRecognizers>
+                    <StackLayout HorizontalOptions="Center" 
+                                 VerticalOptions="Center" 
+                                 Padding="20">
+                        <Label Text="👤" FontSize="30" HorizontalOptions="Center"/>
+                        <Label Text="Registrar" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               FontSize="14"/>
+                        <Label Text="Paciente" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               FontSize="14"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Configuración -->
+                <Frame Grid.Row="1" Grid.Column="1" 
+                       BackgroundColor="#34495e" 
+                       HasShadow="True" 
+                       CornerRadius="15"
+                       Padding="0">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnConfiguracionTapped"/>
+                    </Frame.GestureRecognizers>
+                    <StackLayout HorizontalOptions="Center" 
+                                 VerticalOptions="Center" 
+                                 Padding="20">
+                        <Label Text="⚙️" FontSize="30" HorizontalOptions="Center"/>
+                        <Label Text="Configuración" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               FontSize="14"/>
+                    </StackLayout>
+                </Frame>
+
+            </Grid>
+
+            <!-- Botón Cerrar Sesión -->
+            <Button x:Name="CerrarSesionButton" 
+                    Text="🚪 CERRAR SESIÓN" 
+                    BackgroundColor="#95a5a6"
+                    TextColor="White"
+                    CornerRadius="25"
+                    HeightRequest="50"
+                    FontAttributes="Bold"
+                    Margin="0,30,0,10"
+                    Clicked="OnCerrarSesionClicked"/>
 
         </StackLayout>
     </ScrollView>
-
 </ContentPage>

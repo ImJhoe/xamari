@@ -38,8 +38,12 @@ namespace CitasMedicasApp.Views
                     Application.Current.Properties["Token"] = response.token;
                     await Application.Current.SavePropertiesAsync();
 
-                    // Navegar al menú principal
-                    Application.Current.MainPage = new AppShell();
+                    // Navegar al menú principal con NavigationPage
+                    Application.Current.MainPage = new NavigationPage(new MenuPrincipalPage())
+                    {
+                        BarBackgroundColor = Color.FromHex("#3498db"),
+                        BarTextColor = Color.White
+                    };
                 }
                 else
                 {
