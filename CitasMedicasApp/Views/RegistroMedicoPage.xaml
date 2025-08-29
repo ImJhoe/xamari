@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.RegistroMedicoPage"
+             Title="Registro de Médico">
+
+    <ScrollView BackgroundColor="#f8f9fa">
+        <StackLayout Padding="20" Spacing="15">
+
+            <!-- Título -->
+            <Label Text="REGISTRO DE MÉDICO" 
+                   FontSize="24" 
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="#2c3e50"
+                   Margin="0,10,0,20"/>
+
+            <!-- Datos Personales -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                <StackLayout Spacing="15">
+                    <Label Text="DATOS PERSONALES" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#34495e"/>
+
+                    <!-- Cédula -->
+                    <StackLayout>
+                        <Label Text="Cédula:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="CedulaEntry" 
+                               Placeholder="1234567890"
+                               Keyboard="Numeric"
+                               MaxLength="10"/>
+                    </StackLayout>
+
+                    <!-- Nombre -->
+                    <StackLayout>
+                        <Label Text="Nombre:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="NombreEntry" 
+                               Placeholder="Juan Carlos"/>
+                    </StackLayout>
+
+                    <!-- Apellido -->
+                    <StackLayout>
+                        <Label Text="Apellido:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="ApellidoEntry" 
+                               Placeholder="Pérez García"/>
+                    </StackLayout>
+
+                    <!-- Email -->
+                    <StackLayout>
+                        <Label Text="Email:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="EmailEntry" 
+                               Placeholder="doctor@ejemplo.com"
+                               Keyboard="Email"/>
+                    </StackLayout>
+
+                    <!-- Teléfono -->
+                    <StackLayout>
+                        <Label Text="Teléfono:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="TelefonoEntry" 
+                               Placeholder="0987654321"
+                               Keyboard="Telephone"/>
+                    </StackLayout>
+
+                    <!-- Contraseña -->
+                    <StackLayout>
+                        <Label Text="Contraseña:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="PasswordEntry" 
+                               Placeholder="Mínimo 6 caracteres"
+                               IsPassword="True"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Frame>
+
+            <!-- Datos Profesionales -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                <StackLayout Spacing="15">
+                    <Label Text="DATOS PROFESIONALES" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#34495e"/>
+
+                    <!-- Especialidad -->
+                    <StackLayout>
+                        <Label Text="Especialidad:" FontAttributes="Bold" TextColor="#555"/>
+                        <Picker x:Name="EspecialidadPicker" 
+                                Title="Seleccione una especialidad"
+                                SelectedIndexChanged="OnEspecialidadChanged"/>
+                    </StackLayout>
+
+                    <!-- Sucursal -->
+                    <StackLayout>
+                        <Label Text="Sucursal Principal:" FontAttributes="Bold" TextColor="#555"/>
+                        <Picker x:Name="SucursalPicker" 
+                                Title="Seleccione una sucursal"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Frame>
+
+            <!-- Asignación de Horarios -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                <StackLayout Spacing="15">
+                    <Label Text="ASIGNACIÓN DE HORARIOS" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#34495e"/>
+
+                    <Label Text="Seleccione los días y horarios de atención:" 
+                           TextColor="#666"/>
+
+                    <!-- Lista de días con checkboxes y horarios -->
+                    <StackLayout x:Name="HorariosStackLayout" Spacing="10">
+                        <!-- Se generará dinámicamente en el código -->
+                    </StackLayout>
+
+                </StackLayout>
+            </Frame>
+
+            <!-- Mensaje de error/éxito -->
+            <Label x:Name="MessageLabel" 
+                   Text="" 
+                   IsVisible="False"
+                   HorizontalOptions="Center"
+                   FontAttributes="Bold"/>
+
+            <!-- Botones -->
+            <StackLayout Orientation="Horizontal" 
+                         HorizontalOptions="FillAndExpand" 
+                         Spacing="10">
+
+                <Button x:Name="LimpiarButton" 
+                        Text="LIMPIAR" 
+                        BackgroundColor="#95a5a6"
+                        TextColor="White"
+                        CornerRadius="25"
+                        HorizontalOptions="FillAndExpand"
+                        Clicked="OnLimpiarClicked"/>
+
+                <Button x:Name="RegistrarButton" 
+                        Text="REGISTRAR MÉDICO" 
+                        BackgroundColor="#27ae60"
+                        TextColor="White"
+                        CornerRadius="25"
+                        HorizontalOptions="FillAndExpand"
+                        Clicked="OnRegistrarClicked"/>
+
+            </StackLayout>
+
+            <!-- Indicador de carga -->
+            <ActivityIndicator x:Name="LoadingIndicator" 
+                             IsVisible="False"
+                             IsRunning="False"
+                             Color="#27ae60"
+                             HeightRequest="50"/>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

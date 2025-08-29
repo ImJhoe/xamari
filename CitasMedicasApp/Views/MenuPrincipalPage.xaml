@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.MenuPrincipalPage"
+             Title="Sistema de Citas Médicas"
+             BackgroundColor="#f8f9fa">
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="20">
+
+            <!-- Header -->
+            <Frame BackgroundColor="#3498db" 
+                   HasShadow="True" 
+                   CornerRadius="15"
+                   Padding="20">
+                <StackLayout>
+                    <Label Text="🏥 Sistema de Citas Médicas" 
+                           FontSize="24" 
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Gestión integral de citas médicas" 
+                           FontSize="14"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           Opacity="0.9"/>
+                </StackLayout>
+            </Frame>
+
+            <!-- Menú de opciones -->
+            <Grid RowDefinitions="*, *, *" 
+                  ColumnDefinitions="*, *" 
+                  RowSpacing="15" 
+                  ColumnSpacing="15">
+
+                <!-- Ver Citas -->
+                <Frame Grid.Row="0" Grid.Column="0"
+                       BackgroundColor="White"
+                       HasShadow="True"
+                       CornerRadius="15">
+                    <StackLayout>
+                        <Button Text="📅&#x0a;Ver Citas"
+                                FontSize="16"
+                                BackgroundColor="Transparent"
+                                TextColor="#2c3e50"
+                                Clicked="OnVerCitasClicked"
+                                HeightRequest="80"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Crear Cita -->
+                <Frame Grid.Row="0" Grid.Column="1"
+                       BackgroundColor="White"
+                       HasShadow="True"
+                       CornerRadius="15">
+                    <StackLayout>
+                        <Button Text="➕&#x0a;Crear Cita"
+                                FontSize="16"
+                                BackgroundColor="Transparent"
+                                TextColor="#27ae60"
+                                Clicked="OnCrearCitaClicked"
+                                HeightRequest="80"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Consultar Médico -->
+                <Frame Grid.Row="1" Grid.Column="0"
+                       BackgroundColor="White"
+                       HasShadow="True"
+                       CornerRadius="15">
+                    <StackLayout>
+                        <Button Text="👨‍⚕️&#x0a;Consultar Médico"
+                                FontSize="16"
+                                BackgroundColor="Transparent"
+                                TextColor="#3498db"
+                                Clicked="OnConsultarMedicoClicked"
+                                HeightRequest="80"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Editar Horarios -->
+                <Frame Grid.Row="1" Grid.Column="1"
+                       BackgroundColor="White"
+                       HasShadow="True"
+                       CornerRadius="15">
+                    <StackLayout>
+                        <Button Text="🕐&#x0a;Editar Horarios"
+                                FontSize="16"
+                                BackgroundColor="Transparent"
+                                TextColor="#e67e22"
+                                Clicked="OnEditarHorariosClicked"
+                                HeightRequest="80"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Registrar Médico -->
+                <Frame Grid.Row="2" Grid.Column="0"
+                       BackgroundColor="White"
+                       HasShadow="True"
+                       CornerRadius="15">
+                    <StackLayout>
+                        <Button Text="👨‍⚕️➕&#x0a;Registrar Médico"
+                                FontSize="16"
+                                BackgroundColor="Transparent"
+                                TextColor="#9b59b6"
+                                Clicked="OnRegistroMedicoClicked"
+                                HeightRequest="80"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Registrar Paciente -->
+                <Frame Grid.Row="2" Grid.Column="1"
+                       BackgroundColor="White"
+                       HasShadow="True"
+                       CornerRadius="15">
+                    <StackLayout>
+                        <Button Text="👤➕&#x0a;Registrar Paciente"
+                                FontSize="16"
+                                BackgroundColor="Transparent"
+                                TextColor="#e74c3c"
+                                Clicked="OnRegistroPacienteClicked"
+                                HeightRequest="80"/>
+                    </StackLayout>
+                </Frame>
+
+            </Grid>
+
+            <!-- Footer -->
+            <Frame BackgroundColor="#34495e" 
+                   HasShadow="True" 
+                   CornerRadius="10"
+                   Margin="0,20,0,0">
+                <Label Text="Sistema desarrollado para gestión médica" 
+                       TextColor="White"
+                       FontSize="12"
+                       HorizontalOptions="Center"/>
+            </Frame>
+
+        </StackLayout>
+    </ScrollView>
+
+</ContentPage>

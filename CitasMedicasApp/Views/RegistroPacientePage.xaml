@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.RegistroPacientePage"
+             Title="Registro de Paciente">
+
+    <ScrollView BackgroundColor="#f8f9fa">
+        <StackLayout Padding="20" Spacing="15">
+
+            <!-- Título -->
+            <Label Text="REGISTRO DE NUEVO PACIENTE" 
+                   FontSize="22" 
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="#2c3e50"
+                   Margin="0,10,0,20"/>
+
+            <!-- Información del flujo -->
+            <Frame BackgroundColor="#d1ecf1" 
+                   BorderColor="#bee5eb"
+                   CornerRadius="8"
+                   HasShadow="false"
+                   Padding="15"
+                   Margin="0,0,0,10">
+                <Label x:Name="FlujoInfoLabel"
+                       Text="💡 Después de registrar al paciente, regresará automáticamente al formulario de citas"
+                       TextColor="#0c5460"
+                       FontSize="12"
+                       HorizontalOptions="Center"/>
+            </Frame>
+
+            <!-- Datos Personales -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                <StackLayout Spacing="15">
+                    <Label Text="DATOS PERSONALES" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#34495e"/>
+
+                    <!-- Cédula -->
+                    <StackLayout>
+                        <Label Text="Cédula:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="CedulaEntry" 
+                               Placeholder="1234567890"
+                               Keyboard="Numeric"
+                               MaxLength="10"/>
+                    </StackLayout>
+
+                    <!-- Nombres -->
+                    <StackLayout>
+                        <Label Text="Nombres:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="NombresEntry" 
+                               Placeholder="Juan Carlos"/>
+                    </StackLayout>
+
+                    <!-- Apellidos -->
+                    <StackLayout>
+                        <Label Text="Apellidos:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="ApellidosEntry" 
+                               Placeholder="Pérez García"/>
+                    </StackLayout>
+
+                    <!-- Email -->
+                    <StackLayout>
+                        <Label Text="Email:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="EmailEntry" 
+                               Placeholder="paciente@ejemplo.com"
+                               Keyboard="Email"/>
+                    </StackLayout>
+
+                    <!-- Teléfono -->
+                    <StackLayout>
+                        <Label Text="Teléfono:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="TelefonoEntry" 
+                               Placeholder="0987654321"
+                               Keyboard="Telephone"/>
+                    </StackLayout>
+
+                    <!-- Fecha de nacimiento -->
+                    <StackLayout>
+                        <Label Text="Fecha de nacimiento:" FontAttributes="Bold" TextColor="#555"/>
+                        <DatePicker x:Name="FechaNacimientoDatePicker" 
+                                  MaximumDate="{x:Static x:DateTime.Now}"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Frame>
+
+            <!-- Información Médica -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                <StackLayout Spacing="15">
+                    <Label Text="INFORMACIÓN MÉDICA" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#34495e"/>
+
+                    <!-- Tipo de sangre -->
+                    <StackLayout>
+                        <Label Text="Tipo de sangre:" FontAttributes="Bold" TextColor="#555"/>
+                        <Picker x:Name="TipoSangrePicker" 
+                                Title="Seleccione tipo de sangre">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String>A+</x:String>
+                                    <x:String>A-</x:String>
+                                    <x:String>B+</x:String>
+                                    <x:String>B-</x:String>
+                                    <x:String>AB+</x:String>
+                                    <x:String>AB-</x:String>
+                                    <x:String>O+</x:String>
+                                    <x:String>O-</x:String>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                    </StackLayout>
+
+                    <!-- Alergias -->
+                    <StackLayout>
+                        <Label Text="Alergias conocidas:" FontAttributes="Bold" TextColor="#555"/>
+                        <Editor x:Name="AlergiasEditor" 
+                                Placeholder="Describa las alergias conocidas o escriba 'Ninguna'..."
+                                HeightRequest="60"/>
+                    </StackLayout>
+
+                    <!-- Antecedentes médicos -->
+                    <StackLayout>
+                        <Label Text="Antecedentes médicos:" FontAttributes="Bold" TextColor="#555"/>
+                        <Editor x:Name="AntecedentesEditor" 
+                                Placeholder="Enfermedades previas, cirugías, medicamentos actuales..."
+                                HeightRequest="80"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Frame>
+
+            <!-- Contacto de Emergencia -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                <StackLayout Spacing="15">
+                    <Label Text="CONTACTO DE EMERGENCIA" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#34495e"/>
+
+                    <!-- Nombre del contacto -->
+                    <StackLayout>
+                        <Label Text="Nombre del contacto:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="ContactoEmergenciaEntry" 
+                               Placeholder="María Pérez (madre)"/>
+                    </StackLayout>
+
+                    <!-- Teléfono del contacto -->
+                    <StackLayout>
+                        <Label Text="Teléfono del contacto:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="TelefonoEmergenciaEntry" 
+                               Placeholder="0987654321"
+                               Keyboard="Telephone"/>
+                    </StackLayout>
+
+                    <!-- Número de seguro (opcional) -->
+                    <StackLayout>
+                        <Label Text="Número de seguro (opcional):" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="NumeroSeguroEntry" 
+                               Placeholder="Número de seguro médico"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Frame>
+
+            <!-- Mensaje de estado -->
+            <Label x:Name="MessageLabel" 
+                   Text="" 
+                   IsVisible="False"
+                   HorizontalOptions="Center"
+                   FontAttributes="Bold"
+                   Margin="0,10"/>
+
+            <!-- Botones -->
+            <StackLayout Orientation="Horizontal" 
+                         HorizontalOptions="FillAndExpand" 
+                         Spacing="10"
+                         Margin="0,20,0,0">
+
+                <Button x:Name="CancelarButton" 
+                        Text="CANCELAR" 
+                        BackgroundColor="#95a5a6"
+                        TextColor="White"
+                        CornerRadius="25"
+                        HorizontalOptions="FillAndExpand"
+                        Clicked="OnCancelarClicked"/>
+
+                <Button x:Name="RegistrarPacienteButton" 
+                        Text="REGISTRAR PACIENTE" 
+                        BackgroundColor="#27ae60"
+                        TextColor="White"
+                        CornerRadius="25"
+                        HorizontalOptions="FillAndExpand"
+                        Clicked="OnRegistrarPacienteClicked"/>
+
+            </StackLayout>
+
+            <!-- Indicador de carga -->
+            <ActivityIndicator x:Name="LoadingIndicator" 
+                             IsVisible="False"
+                             IsRunning="False"
+                             Color="#27ae60"
+                             HeightRequest="50"/>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

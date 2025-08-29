@@ -1,0 +1,9 @@
+# Archivos temporales de Visual Studio
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.vspscc
+*.vssscc
+*.log

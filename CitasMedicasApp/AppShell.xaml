@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Shell xmlns="http://xamarin.com/schemas/2014/forms" 
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:local="clr-namespace:CitasMedicasApp.Views"
+       Title="Citas Médicas"
+       x:Class="CitasMedicasApp.AppShell">
+
+    <!-- Estilos del Shell -->
+    <Shell.Resources>
+        <ResourceDictionary>
+            <Style x:Key="BaseStyle" TargetType="Element">
+                <Setter Property="Shell.BackgroundColor" Value="#3498db" />
+                <Setter Property="Shell.ForegroundColor" Value="White" />
+                <Setter Property="Shell.TitleColor" Value="White" />
+                <Setter Property="Shell.DisabledColor" Value="#B4FFFFFF" />
+                <Setter Property="Shell.UnselectedColor" Value="#95FFFFFF" />
+            </Style>
+        </ResourceDictionary>
+    </Shell.Resources>
+
+    <!-- Menú principal -->
+    <FlyoutItem Title="Inicio" Icon="home.png">
+        <ShellContent Route="main" ContentTemplate="{DataTemplate local:MainPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Registro Médico" Icon="doctor.png">
+        <ShellContent Route="registromedico" ContentTemplate="{DataTemplate local:RegistroMedicoPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Consultar Médicos" Icon="schedule.png">
+        <ShellContent Route="consultarmedico" ContentTemplate="{DataTemplate local:ConsultarMedicoPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Crear Cita" Icon="calendar.png">
+        <ShellContent Route="crearcita" ContentTemplate="{DataTemplate local:CrearCitaPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Ver Citas" Icon="list.png">
+        <ShellContent Route="vercitas" ContentTemplate="{DataTemplate local:VerCitasPage}" />
+    </FlyoutItem>
+
+    <!-- Menú inferior para cerrar sesión -->
+    <MenuItem Text="Cerrar Sesión" 
+              StyleClass="MenuItemLayoutStyle" 
+              Clicked="OnLogoutClicked">
+        <MenuItem.IconImageSource>
+            <FontImageSource FontFamily="FontAwesome" 
+                           Glyph="&#xf08b;" 
+                           Color="White" />
+        </MenuItem.IconImageSource>
+    </MenuItem>
+
+</Shell>

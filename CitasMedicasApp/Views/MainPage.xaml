@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.MainPage"
+             Title="Panel Principal">
+
+    <ScrollView BackgroundColor="#f8f9fa">
+        <StackLayout Padding="20" Spacing="20">
+
+            <!-- Bienvenida -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                <StackLayout>
+                    <Label x:Name="WelcomeLabel" 
+                           Text="Bienvenido al Sistema de Citas Médicas" 
+                           FontSize="20" 
+                           FontAttributes="Bold"
+                           TextColor="#2c3e50"
+                           HorizontalOptions="Center"/>
+
+                    <Label x:Name="UserInfoLabel" 
+                           Text="" 
+                           FontSize="14"
+                           TextColor="#7f8c8d"
+                           HorizontalOptions="Center"
+                           Margin="0,5,0,0"/>
+                </StackLayout>
+            </Frame>
+
+            <!-- Opciones rápidas -->
+            <Label Text="Acciones Rápidas" 
+                   FontSize="18" 
+                   FontAttributes="Bold" 
+                   TextColor="#2c3e50"/>
+
+            <Grid RowDefinitions="*, *" ColumnDefinitions="*, *" RowSpacing="15" ColumnSpacing="15">
+
+                <!-- Registro Médico -->
+                <Frame Grid.Row="0" Grid.Column="0" 
+                       BackgroundColor="#3498db" 
+                       HasShadow="True" 
+                       CornerRadius="10">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRegistroMedicoTapped"/>
+                    </Frame.GestureRecognizers>
+                    <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="👨‍⚕️" FontSize="30" HorizontalOptions="Center"/>
+                        <Label Text="Registro Médico" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Consultar Médico -->
+                <Frame Grid.Row="0" Grid.Column="1" 
+                       BackgroundColor="#2ecc71" 
+                       HasShadow="True" 
+                       CornerRadius="10">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnConsultarMedicoTapped"/>
+                    </Frame.GestureRecognizers>
+                    <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="📅" FontSize="30" HorizontalOptions="Center"/>
+                        <Label Text="Consultar Médico" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Crear Cita -->
+                <Frame Grid.Row="1" Grid.Column="0" 
+                       BackgroundColor="#e74c3c" 
+                       HasShadow="True" 
+                       CornerRadius="10">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCrearCitaTapped"/>
+                    </Frame.GestureRecognizers>
+                    <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="📋" FontSize="30" HorizontalOptions="Center"/>
+                        <Label Text="Crear Cita" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Ver Citas -->
+                <Frame Grid.Row="1" Grid.Column="1" 
+                       BackgroundColor="#9b59b6" 
+                       HasShadow="True" 
+                       CornerRadius="10">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnVerCitasTapped"/>
+                    </Frame.GestureRecognizers>
+                    <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="📊" FontSize="30" HorizontalOptions="Center"/>
+                        <Label Text="Ver Citas" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                    </StackLayout>
+                </Frame>
+
+            </Grid>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

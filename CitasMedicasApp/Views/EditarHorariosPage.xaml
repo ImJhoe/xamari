@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.EditarHorariosPage"
+             Title="Editar Horarios">
+
+    <ScrollView BackgroundColor="#f8f9fa">
+        <StackLayout Padding="20" Spacing="15">
+
+            <!-- Info del médico -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                <StackLayout>
+                    <Label x:Name="MedicoInfoLabel" 
+                           Text="" 
+                           FontSize="16" 
+                           FontAttributes="Bold"
+                           TextColor="#2c3e50"
+                           HorizontalOptions="Center"/>
+                </StackLayout>
+            </Frame>
+
+            <!-- Lista de horarios editables -->
+            <Label Text="HORARIOS ACTUALES:" 
+                   FontSize="16" 
+                   FontAttributes="Bold" 
+                   TextColor="#34495e"/>
+
+            <StackLayout x:Name="HorariosEditablesStack" Spacing="10">
+                <!-- Se llenará dinámicamente -->
+            </StackLayout>
+
+            <!-- Botones -->
+            <StackLayout Orientation="Horizontal" 
+                         HorizontalOptions="FillAndExpand" 
+                         Spacing="10"
+                         Margin="0,20,0,0">
+
+                <Button x:Name="CancelarButton" 
+                        Text="CANCELAR" 
+                        BackgroundColor="#95a5a6"
+                        TextColor="White"
+                        CornerRadius="25"
+                        HorizontalOptions="FillAndExpand"
+                        Clicked="OnCancelarClicked"/>
+
+                <Button x:Name="GuardarButton" 
+                        Text="GUARDAR CAMBIOS" 
+                        BackgroundColor="#27ae60"
+                        TextColor="White"
+                        CornerRadius="25"
+                        HorizontalOptions="FillAndExpand"
+                        Clicked="OnGuardarClicked"/>
+
+            </StackLayout>
+
+            <!-- Indicador de carga -->
+            <ActivityIndicator x:Name="LoadingIndicator" 
+                             IsVisible="False"
+                             IsRunning="False"
+                             Color="#27ae60"
+                             HeightRequest="50"/>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

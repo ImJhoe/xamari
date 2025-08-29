@@ -1,0 +1,71 @@
+﻿<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.ConsultarMedicoPage"
+             Title="Consultar Médicos">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Actualizar" 
+                     IconImageSource="refresh.png" 
+                     Clicked="OnRefreshClicked"/>
+    </ContentPage.ToolbarItems>
+    <Grid BackgroundColor="#f8f9fa">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- Barra de búsqueda -->
+        <Frame Grid.Row="0" 
+               BackgroundColor="White" 
+               HasShadow="True" 
+               CornerRadius="10" 
+               Margin="15,10">
+            <StackLayout Orientation="Horizontal" Spacing="10">
+                <Entry x:Name="SearchEntry" 
+                       Placeholder="Buscar médico por nombre, cédula o especialidad..." 
+                       HorizontalOptions="FillAndExpand"
+                       TextChanged="OnSearchTextChanged"/>
+                <Button Text="🔍" 
+                        BackgroundColor="#3498db"
+                        TextColor="White"
+                        CornerRadius="20"
+                        WidthRequest="40"
+                        HeightRequest="40"/>
+            </StackLayout>
+        </Frame>
+        <!-- Lista de médicos -->
+        <ScrollView Grid.Row="1">
+            <StackLayout x:Name="MedicosStackLayout" 
+                         Padding="15" 
+                         Spacing="10">
+                <!-- Indicador de carga -->
+                <ActivityIndicator x:Name="LoadingIndicator" 
+                                 IsVisible="False"
+                                 IsRunning="False"
+                                 Color="#3498db"
+                                 HeightRequest="50"/>
+                <!-- Mensaje cuando no hay datos -->
+                <Label x:Name="NoDataLabel" 
+                       Text="No se encontraron médicos" 
+                       IsVisible="False"
+                       HorizontalOptions="Center"
+                       VerticalOptions="CenterAndExpand"
+                       FontSize="16"
+                       TextColor="#7f8c8d"/>
+            </StackLayout>
+        </ScrollView>
+        <!-- Mensaje flotante envuelto en Frame -->
+        <Frame x:Name="MessageFrame"
+               Grid.Row="1"
+               IsVisible="False"
+               BackgroundColor="Black"
+               CornerRadius="10"
+               HorizontalOptions="Center"
+               VerticalOptions="End"
+               Margin="20"
+               Opacity="0.8"
+               Padding="15">
+            <Label x:Name="MessageLabel" 
+                   Text=""
+                   TextColor="White"/>
+        </Frame>
+    </Grid>
+</ContentPage>
