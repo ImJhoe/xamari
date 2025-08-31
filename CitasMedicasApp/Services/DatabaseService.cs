@@ -11,7 +11,7 @@ public class DatabaseService
 
     public DatabaseService()
     {
-        _connectionString = "Server=192.168.21.111;Port=3306;Database=menudinamico;Uid=root;Pwd=;";
+        _connectionString = "Server=192.168.1.8;Port=3306;Database=menudinamico;Uid=root;Pwd=;";
     }
 
     public async Task<bool> TestConnectionAsync()

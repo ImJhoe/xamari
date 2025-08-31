@@ -15,10 +15,10 @@
                    TextColor="#2c3e50"
                    Margin="0,10,0,20"/>
 
-            <!-- Datos Personales -->
+            <!-- SECCIÓN 1: Datos Personales -->
             <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
                 <StackLayout Spacing="15">
-                    <Label Text="DATOS PERSONALES" 
+                    <Label Text="👨‍⚕️ DATOS PERSONALES" 
                            FontSize="16" 
                            FontAttributes="Bold" 
                            TextColor="#34495e"/>
@@ -36,21 +36,21 @@
                     <StackLayout>
                         <Label Text="Nombre:" FontAttributes="Bold" TextColor="#555"/>
                         <Entry x:Name="NombreEntry" 
-                               Placeholder="Juan Carlos"/>
+                               Placeholder="Ingrese nombre completo"/>
                     </StackLayout>
 
                     <!-- Apellido -->
                     <StackLayout>
                         <Label Text="Apellido:" FontAttributes="Bold" TextColor="#555"/>
                         <Entry x:Name="ApellidoEntry" 
-                               Placeholder="Pérez García"/>
+                               Placeholder="Ingrese apellidos"/>
                     </StackLayout>
 
                     <!-- Email -->
                     <StackLayout>
                         <Label Text="Email:" FontAttributes="Bold" TextColor="#555"/>
                         <Entry x:Name="EmailEntry" 
-                               Placeholder="doctor@ejemplo.com"
+                               Placeholder="doctor@email.com"
                                Keyboard="Email"/>
                     </StackLayout>
 
@@ -58,7 +58,7 @@
                     <StackLayout>
                         <Label Text="Teléfono:" FontAttributes="Bold" TextColor="#555"/>
                         <Entry x:Name="TelefonoEntry" 
-                               Placeholder="0987654321"
+                               Placeholder="0998765432"
                                Keyboard="Telephone"/>
                     </StackLayout>
 
@@ -69,14 +69,13 @@
                                Placeholder="Mínimo 6 caracteres"
                                IsPassword="True"/>
                     </StackLayout>
-
                 </StackLayout>
             </Frame>
 
-            <!-- Datos Profesionales -->
+            <!-- SECCIÓN 2: Datos Profesionales -->
             <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
                 <StackLayout Spacing="15">
-                    <Label Text="DATOS PROFESIONALES" 
+                    <Label Text="🩺 DATOS PROFESIONALES" 
                            FontSize="16" 
                            FontAttributes="Bold" 
                            TextColor="#34495e"/>
@@ -85,76 +84,80 @@
                     <StackLayout>
                         <Label Text="Especialidad:" FontAttributes="Bold" TextColor="#555"/>
                         <Picker x:Name="EspecialidadPicker" 
-                                Title="Seleccione una especialidad"
-                                SelectedIndexChanged="OnEspecialidadChanged"/>
+                                Title="Seleccione especialidad"/>
                     </StackLayout>
 
-                    <!-- Sucursal -->
+                    <!-- Título Profesional -->
                     <StackLayout>
-                        <Label Text="Sucursal Principal:" FontAttributes="Bold" TextColor="#555"/>
-                        <Picker x:Name="SucursalPicker" 
-                                Title="Seleccione una sucursal"/>
+                        <Label Text="Título Profesional:" FontAttributes="Bold" TextColor="#555"/>
+                        <Entry x:Name="TituloProfesionalEntry" 
+                               Placeholder="Ej: MSc. Cardiólogo"/>
                     </StackLayout>
-
                 </StackLayout>
             </Frame>
 
-            <!-- Asignación de Horarios -->
+            <!-- SECCIÓN 3: Asignación de Horarios NUEVA -->
             <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
                 <StackLayout Spacing="15">
-                    <Label Text="ASIGNACIÓN DE HORARIOS" 
+                    <Label Text="🕒 ASIGNACIÓN DE HORARIOS" 
                            FontSize="16" 
                            FontAttributes="Bold" 
                            TextColor="#34495e"/>
 
-                    <Label Text="Seleccione los días y horarios de atención:" 
-                           TextColor="#666"/>
+                    <!-- Botón para agregar horario -->
+                    <Button x:Name="AgregarHorarioButton"
+                            Text="➕ AGREGAR NUEVO HORARIO"
+                            BackgroundColor="#27ae60"
+                            TextColor="White"
+                            CornerRadius="25"
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Clicked="OnAgregarHorarioClicked"/>
 
-                    <!-- Lista de días con checkboxes y horarios -->
-                    <StackLayout x:Name="HorariosStackLayout" Spacing="10">
-                        <!-- Se generará dinámicamente en el código -->
+                    <!-- Lista de horarios agregados -->
+                    <StackLayout x:Name="HorariosListaStack" Spacing="10">
+                        <!-- Los horarios se agregarán aquí dinámicamente -->
                     </StackLayout>
 
+                    <!-- Contador de horarios -->
+                    <Label x:Name="ContadorHorariosLabel"
+                           Text="0 horarios agregados"
+                           FontSize="12"
+                           TextColor="#7f8c8d"
+                           HorizontalOptions="Center"/>
                 </StackLayout>
             </Frame>
 
-            <!-- Mensaje de error/éxito -->
-            <Label x:Name="MessageLabel" 
-                   Text="" 
-                   IsVisible="False"
-                   HorizontalOptions="Center"
-                   FontAttributes="Bold"/>
-
-            <!-- Botones -->
-            <StackLayout Orientation="Horizontal" 
-                         HorizontalOptions="FillAndExpand" 
-                         Spacing="10">
-
-                <Button x:Name="LimpiarButton" 
-                        Text="LIMPIAR" 
-                        BackgroundColor="#95a5a6"
-                        TextColor="White"
-                        CornerRadius="25"
-                        HorizontalOptions="FillAndExpand"
-                        Clicked="OnLimpiarClicked"/>
-
-                <Button x:Name="RegistrarButton" 
-                        Text="REGISTRAR MÉDICO" 
-                        BackgroundColor="#27ae60"
-                        TextColor="White"
-                        CornerRadius="25"
-                        HorizontalOptions="FillAndExpand"
-                        Clicked="OnRegistrarClicked"/>
-
-            </StackLayout>
+            <!-- Mensajes de estado -->
+            <Frame x:Name="MessageFrame" IsVisible="False" HasShadow="True" CornerRadius="8">
+                <Label x:Name="MessageLabel" FontSize="14" HorizontalOptions="Center"/>
+            </Frame>
 
             <!-- Indicador de carga -->
-            <ActivityIndicator x:Name="LoadingIndicator" 
-                             IsVisible="False"
-                             IsRunning="False"
-                             Color="#27ae60"
-                             HeightRequest="50"/>
+            <ActivityIndicator x:Name="LoadingIndicator" IsVisible="False" IsRunning="False" Color="#3498db"/>
 
+            <!-- Botones de acción -->
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="20" Margin="0,20,0,0">
+                <Button x:Name="RegistrarButton" 
+                        Text="💾 REGISTRAR MÉDICO"
+                        BackgroundColor="#3498db"
+                        TextColor="White"
+                        CornerRadius="25"
+                        Padding="30,12"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        Clicked="OnRegistrarMedicoClicked"/>
+
+                <Button x:Name="LimpiarButton" 
+                        Text="🗑️ LIMPIAR"
+                        BackgroundColor="#e74c3c"
+                        TextColor="White"
+                        CornerRadius="25"
+                        Padding="30,12"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        Clicked="OnLimpiarClicked"/>
+            </StackLayout>
         </StackLayout>
     </ScrollView>
 </ContentPage>

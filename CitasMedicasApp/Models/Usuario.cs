@@ -58,13 +58,17 @@ namespace CitasMedicasApp.Models
     // Models/HorarioMedico.cs
     public class HorarioMedico
     {
-        public int id { get; set; }
+        public int id_horario { get; set; }
         public int id_medico { get; set; }
-        public string dia_semana { get; set; }
+        public int id_doctor { get; set; } // Alias para id_medico
+        public int id_sucursal { get; set; }
+        public string dia_semana { get; set; } // Como string para envío
+        public int dia_semana_numero { get; set; } // Como número
         public string hora_inicio { get; set; }
         public string hora_fin { get; set; }
-        public bool activo { get; set; }
-        public int id_sucursal { get; set; }
+        public int duracion_cita { get; set; } = 30; // ← AGREGAR ESTA PROPIEDAD
+        public bool activo { get; set; } = true;
+        public DateTime fecha_creacion { get; set; }
     }
 
     // Models/ApiResponse.cs

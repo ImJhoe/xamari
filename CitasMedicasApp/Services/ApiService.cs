@@ -11,7 +11,7 @@ using CitasMedicasApp.Models;
 public class ApiService
 {
     private readonly HttpClient _httpClient;
-    private readonly string _baseUrl = "http://192.168.21.111:8081/webservice-slim";
+    private readonly string _baseUrl = "http://192.168.1.8:8081/webservice-slim";
 
     public ApiService()
     {
@@ -115,43 +115,59 @@ public class ApiService
         }
     }
 
+    // ============ ESPECIALIDADES - CORRECCIÓN ============
     public async Task<ApiResponse<List<Especialidad>>> ObtenerEspecialidadesAsync()
     {
         try
         {
-            // Intentar API primero
+            // ✅ USAR API REAL EN LUGAR DE DATOS SIMULADOS
             var response = await _httpClient.GetAsync($"{_baseUrl}/api/especialidades");
+
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ApiResponse<List<Especialidad>>>(responseContent);
             }
+            else
+            {
+                // Si API falla, usar base de datos directa como fallback
+                System.Diagnostics.Debug.WriteLine("API especialidades falló, usando BD directa");
+                var dbService = new DatabaseService();
+                var especialidades = await dbService.ObtenerEspecialidadesAsync();
+
+                return new ApiResponse<List<Especialidad>>
+                {
+                    success = true,
+                    message = "Datos obtenidos desde base de datos local",
+                    data = especialidades
+                };
+            }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"API falló: {ex.Message}");
-        }
+            System.Diagnostics.Debug.WriteLine($"Error API especialidades: {ex.Message}");
 
-        // Si API falla, usar base de datos directa
-        try
-        {
-            var dbService = new DatabaseService();
-            var especialidades = await dbService.ObtenerEspecialidadesAsync();
+            // Fallback a base de datos directa
+            try
+            {
+                var dbService = new DatabaseService();
+                var especialidades = await dbService.ObtenerEspecialidadesAsync();
 
-            return new ApiResponse<List<Especialidad>>
+                return new ApiResponse<List<Especialidad>>
+                {
+                    success = true,
+                    message = "Datos obtenidos desde base de datos local (API falló)",
+                    data = especialidades
+                };
+            }
+            catch (Exception dbEx)
             {
-                success = true,
-                message = "Datos obtenidos desde base de datos local",
-                data = especialidades
-            };
-        }
-        catch (Exception ex)
-        {
-            return new ApiResponse<List<Especialidad>>
-            {
-                success = false,
-                message = $"Error en API y BD: {ex.Message}"
-            };
+                return new ApiResponse<List<Especialidad>>
+                {
+                    success = false,
+                    message = $"Error en API y BD: {ex.Message} | {dbEx.Message}"
+                };
+            }
         }
     }
 
@@ -384,37 +400,60 @@ public class ApiService
         }
     }
 
-    // ============ MÉTODOS FALTANTES (implementación temporal) ============
+    // ============ SUCURSALES - CORRECCIÓN ============ 
     public async Task<ApiResponse<List<Sucursal>>> ObtenerSucursalesAsync()
     {
-        // No está en tu API, simulo datos
-        var sucursales = new List<Sucursal>
+        try
         {
-            new Sucursal { id_sucursal = 1, nombre_sucursal = "Sucursal Principal", direccion = "Av. Principal 123" },
-            new Sucursal { id_sucursal = 2, nombre_sucursal = "Sucursal Norte", direccion = "Av. Norte 456" }
-        };
+            // ✅ USAR API REAL EN LUGAR DE DATOS SIMULADOS
+            var response = await _httpClient.GetAsync($"{_baseUrl}/api/sucursales");
 
-        return new ApiResponse<List<Sucursal>>
-        {
-            success = true,
-            data = sucursales
-        };
-    }
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ApiResponse<List<Sucursal>>>(responseContent);
+            }
+            else
+            {
+                // Si API falla, usar base de datos directa como fallback
+                System.Diagnostics.Debug.WriteLine("API sucursales falló, usando BD directa");
+                var dbService = new DatabaseService();
+                var sucursales = await dbService.ObtenerSucursalesAsync();
 
-    public async Task<ApiResponse<List<TipoCita>>> ObtenerTiposCitaAsync()
-    {
-        // No está en tu API, simulo datos
-        var tipos = new List<TipoCita>
+                return new ApiResponse<List<Sucursal>>
+                {
+                    success = true,
+                    message = "Datos obtenidos desde base de datos local",
+                    data = sucursales
+                };
+            }
+        }
+        catch (Exception ex)
         {
-            new TipoCita { id_tipo_cita = 1, nombre_tipo = "Presencial" },
-            new TipoCita { id_tipo_cita = 2, nombre_tipo = "Virtual" }
-        };
+            System.Diagnostics.Debug.WriteLine($"Error API sucursales: {ex.Message}");
 
-        return new ApiResponse<List<TipoCita>>
-        {
-            success = true,
-            data = tipos
-        };
+            // Fallback a base de datos directa
+            try
+            {
+                var dbService = new DatabaseService();
+                var sucursales = await dbService.ObtenerSucursalesAsync();
+
+                return new ApiResponse<List<Sucursal>>
+                {
+                    success = true,
+                    message = "Datos obtenidos desde base de datos local (API falló)",
+                    data = sucursales
+                };
+            }
+            catch (Exception dbEx)
+            {
+                return new ApiResponse<List<Sucursal>>
+                {
+                    success = false,
+                    message = $"Error en API y BD: {ex.Message} | {dbEx.Message}"
+                };
+            }
+        }
     }
     // ============ HORARIOS DISPONIBLES DETALLADOS ============
     public async Task<ApiResponse<HorariosDisponiblesResponse>> ObtenerHorariosDisponiblesDetalladosAsync(int idMedico, int idSucursal, DateTime fecha)
@@ -447,6 +486,89 @@ public class ApiService
         {
             _httpClient.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+    }
+    // ============ TIPOS DE CITA - CORRECCIÓN ============
+    public async Task<ApiResponse<List<TipoCita>>> ObtenerTiposCitaAsync()
+    {
+        try
+        {
+            // ✅ Intentar obtener desde la API primero
+            var response = await _httpClient.GetAsync($"{_baseUrl}/api/tipos-cita");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ApiResponse<List<TipoCita>>>(responseContent);
+            }
+            else
+            {
+                // ✅ Si la API falla, usar datos hardcoded basados en tu BD
+                System.Diagnostics.Debug.WriteLine("API tipos-cita falló, usando datos predeterminados");
+                var tipos = new List<TipoCita>
+            {
+                new TipoCita { id_tipo_cita = 1, nombre_tipo = "Presencial", descripcion = "Cita médica presencial en consultorio o sucursal" },
+                new TipoCita { id_tipo_cita = 2, nombre_tipo = "Virtual", descripcion = "Cita médica por videollamada o telemedicina" }
+            };
+
+                return new ApiResponse<List<TipoCita>>
+                {
+                    success = true,
+                    message = "Tipos de cita obtenidos desde datos predeterminados",
+                    data = tipos
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error tipos de cita: {ex.Message}");
+
+            // ✅ Fallback con datos hardcoded
+            var tipos = new List<TipoCita>
+        {
+            new TipoCita { id_tipo_cita = 1, nombre_tipo = "Presencial", descripcion = "Cita médica presencial en consultorio o sucursal" },
+            new TipoCita { id_tipo_cita = 2, nombre_tipo = "Virtual", descripcion = "Cita médica por videollamada o telemedicina" }
+        };
+
+            return new ApiResponse<List<TipoCita>>
+            {
+                success = true,
+                message = "Tipos de cita obtenidos desde datos predeterminados (error de conexión)",
+                data = tipos
+            };
+        }
+    }
+
+    // ============ MÉTODO INDIVIDUAL PARA ASIGNAR HORARIO ============
+    public async Task<ApiResponse<object>> AsignarHorarioIndividualAsync(HorarioMedico horario)
+    {
+        try
+        {
+            var data = new
+            {
+                id_medico = horario.id_medico,
+                id_sucursal = horario.id_sucursal,
+                dia_semana = int.Parse(horario.dia_semana), // Convertir a número 
+                hora_inicio = horario.hora_inicio + ":00", // Agregar segundos
+                hora_fin = horario.hora_fin + ":00", // Agregar segundos
+                duracion_cita = horario.duracion_cita
+            };
+
+            var json = JsonConvert.SerializeObject(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{_baseUrl}/api/horarios", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<ApiResponse<object>>(responseContent);
+        }
+        catch (Exception ex)
+        {
+            return new ApiResponse<object>
+            {
+                success = false,
+                message = $"Error de conexión: {ex.Message}"
+            };
         }
     }
 }
