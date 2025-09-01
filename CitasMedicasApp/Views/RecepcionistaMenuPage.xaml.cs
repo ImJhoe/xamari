@@ -2,6 +2,7 @@
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using CitasMedicasApp.Services;
+using System.Threading.Tasks;
 
 namespace CitasMedicasApp.Views
 {
@@ -34,6 +35,7 @@ namespace CitasMedicasApp.Views
         }
 
         // ============ PUNTO 4: BUSCAR PACIENTE ============
+        // ✅ CORREGIDO: Cambiado de 'async Task' a 'async void'
         private async void OnBuscarPacienteClicked(object sender, EventArgs e)
         {
             if (UserSessionManager.CanSearchPatients)
@@ -72,7 +74,7 @@ namespace CitasMedicasApp.Views
                 "Entendido");
 
             // Iniciar con búsqueda de paciente
-            await OnBuscarPacienteClicked(sender, e);
+            OnBuscarPacienteClicked(sender, e);
         }
 
         // ============ PUNTO 7: VER HORARIOS ============

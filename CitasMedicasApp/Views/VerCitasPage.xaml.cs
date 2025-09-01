@@ -96,7 +96,12 @@ namespace CitasMedicasApp.Views
             // Mostrar todos los filtros
             EspecialidadFiltroStack.IsVisible = true;
             MedicoFiltroStack.IsVisible = true;
-            FiltrosToolbar.IsVisible = true;
+
+            // ✅ CORRECTO: Agregar/remover ToolbarItems dinámicamente
+            if (!ToolbarItems.Contains(FiltrosToolbar))
+            {
+                ToolbarItems.Add(FiltrosToolbar);
+            }
         }
 
         private void ConfigurarParaRecepcionista()
@@ -109,7 +114,12 @@ namespace CitasMedicasApp.Views
             // Mostrar filtros de especialidad
             EspecialidadFiltroStack.IsVisible = true;
             MedicoFiltroStack.IsVisible = false;
-            FiltrosToolbar.IsVisible = true;
+
+            // ✅ CORRECTO: Agregar/remover ToolbarItems dinámicamente
+            if (!ToolbarItems.Contains(FiltrosToolbar))
+            {
+                ToolbarItems.Add(FiltrosToolbar);
+            }
         }
 
         private void ConfigurarParaMedico()
@@ -122,7 +132,12 @@ namespace CitasMedicasApp.Views
             // Solo filtros básicos para médico
             EspecialidadFiltroStack.IsVisible = false;
             MedicoFiltroStack.IsVisible = false;
-            FiltrosToolbar.IsVisible = true;
+
+            // ✅ CORRECTO: Agregar/remover ToolbarItems dinámicamente
+            if (!ToolbarItems.Contains(FiltrosToolbar))
+            {
+                ToolbarItems.Add(FiltrosToolbar);
+            }
         }
 
         private void ConfigurarParaPaciente()
@@ -135,8 +150,13 @@ namespace CitasMedicasApp.Views
             // Sin filtros para paciente
             EspecialidadFiltroStack.IsVisible = false;
             MedicoFiltroStack.IsVisible = false;
-            FiltrosToolbar.IsVisible = false;
             FiltrosFrame.IsVisible = false;
+
+            // ✅ CORRECTO: Remover ToolbarItems
+            if (ToolbarItems.Contains(FiltrosToolbar))
+            {
+                ToolbarItems.Remove(FiltrosToolbar);
+            }
         }
 
         private async void LoadInitialData()
@@ -335,86 +355,97 @@ namespace CitasMedicasApp.Views
             var fechaCita = cita.fecha_cita != default(DateTime) ? cita.fecha_cita : cita.fecha_hora;
             var estadoColor = ObtenerColorEstado(cita.estado ?? "Programada");
 
+            // ✅ CÓDIGO CORREGIDO - Crear lista de elementos primero
+            var children = new List<View>
+    {
+        // Header con fecha y estado
+        new Grid
+        {
+            ColumnDefinitions =
+            {
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Auto }
+            },
+            Children =
+            {
+                new Label
+                {
+                    Text = $"📅 {fechaCita:dddd, dd/MM/yyyy} - {fechaCita:HH:mm}",
+                    FontAttributes = FontAttributes.Bold,
+                    FontSize = 16
+                }.Apply(l => Grid.SetColumn(l, 0)),
+
+                new Frame
+                {
+                    BackgroundColor = estadoColor,
+                    CornerRadius = 12,
+                    Padding = new Thickness(8, 4),
+                    Content = new Label
+                    {
+                        Text = cita.estado ?? "Programada",
+                        TextColor = Color.White,
+                        FontSize = 10,
+                        FontAttributes = FontAttributes.Bold
+                    }
+                }.Apply(f => Grid.SetColumn(f, 1))
+            }
+        },
+
+        // Información del paciente (si no es paciente el que ve)
+        !UserSessionManager.IsPaciente ? new Label
+        {
+            Text = $"👤 Paciente: {cita.nombre_paciente}",
+            FontSize = 14,
+            TextColor = Color.FromHex("#2c3e50")
+        } : null,
+
+        // Información del médico (si no es médico el que ve)
+        !UserSessionManager.IsMedico ? new Label
+        {
+            Text = $"👨‍⚕️ Médico: {cita.nombre_medico}",
+            FontSize = 14,
+            TextColor = Color.FromHex("#2c3e50")
+        } : null,
+
+        // Especialidad y sucursal
+        new Label
+        {
+            Text = $"🏥 {cita.nombre_especialidad} - {cita.nombre_sucursal}",
+            FontSize = 12,
+            TextColor = Color.FromHex("#7f8c8d")
+        },
+
+        // Motivo
+        !string.IsNullOrEmpty(cita.motivo) ? new Label
+        {
+            Text = $"📝 Motivo: {cita.motivo}",
+            FontSize = 12,
+            TextColor = Color.FromHex("#555")
+        } : null,
+
+        // Botones de acción según rol
+        CrearBotonesAccion(cita)
+    };
+
+            // Filtrar elementos nulos y crear StackLayout
+            var stackLayout = new StackLayout
+            {
+                Spacing = 10
+            };
+
+            foreach (var child in children.Where(c => c != null))
+            {
+                stackLayout.Children.Add(child);
+            }
+
+            // Crear y retornar el Frame
             var frame = new Frame
             {
                 BackgroundColor = Color.White,
                 HasShadow = true,
                 CornerRadius = 10,
                 Margin = new Thickness(0, 5),
-                Content = new StackLayout
-                {
-                    Spacing = 10,
-                    Children =
-                    {
-                        // Header con fecha y estado
-                        new Grid
-                        {
-                            ColumnDefinitions =
-                            {
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Auto }
-                            },
-                            Children =
-                            {
-                                new Label
-                                {
-                                    Text = $"📅 {fechaCita:dddd, dd/MM/yyyy} - {fechaCita:HH:mm}",
-                                    FontAttributes = FontAttributes.Bold,
-                                    FontSize = 16
-                                }.Apply(l => Grid.SetColumn(l, 0)),
-
-                                new Frame
-                                {
-                                    BackgroundColor = estadoColor,
-                                    CornerRadius = 12,
-                                    Padding = new Thickness(8, 4),
-                                    Content = new Label
-                                    {
-                                        Text = cita.estado ?? "Programada",
-                                        TextColor = Color.White,
-                                        FontSize = 10,
-                                        FontAttributes = FontAttributes.Bold
-                                    }
-                                }.Apply(f => Grid.SetColumn(f, 1))
-                            }
-                        },
-
-                        // Información del paciente (si no es paciente el que ve)
-                        !UserSessionManager.IsPaciente ? new Label
-                        {
-                            Text = $"👤 Paciente: {cita.nombre_paciente}",
-                            FontSize = 14,
-                            TextColor = Color.FromHex("#2c3e50")
-                        } : null,
-
-                        // Información del médico (si no es médico el que ve)
-                        !UserSessionManager.IsMedico ? new Label
-                        {
-                            Text = $"👨‍⚕️ Médico: {cita.nombre_medico}",
-                            FontSize = 14,
-                            TextColor = Color.FromHex("#2c3e50")
-                        } : null,
-
-                        // Especialidad y sucursal
-                        new Label
-                        {
-                            Text = $"🏥 {cita.nombre_especialidad} - {cita.nombre_sucursal}",
-                            FontSize = 12,
-                            TextColor = Color.FromHex("#7f8c8d")
-                        },
-
-                        // Motivo
-                        !string.IsNullOrEmpty(cita.motivo) ? new Label
-                        {
-                            Text = $"📝 Motivo: {cita.motivo}",
-                            FontSize = 12,
-                            TextColor = Color.FromHex("#555")
-                        } : null,
-
-                        // Botones de acción según rol
-                        CrearBotonesAccion(cita)
-                    }.Where(child => child != null).ToArray()
-                }
+                Content = stackLayout
             };
 
             return frame;
@@ -548,7 +579,13 @@ namespace CitasMedicasApp.Views
         private void MostrarResumen(List<Cita> citas)
         {
             var totalCitas = citas.Count;
-            var citasPendientes = citas.Count(c => (c.estado ?? "Programada").ToLower() is "programada" or "confirmada");
+
+            var citasPendientes = citas.Count(c =>
+            {
+                var estado = (c.estado ?? "Programada").ToLower();
+                return estado == "programada" || estado == "confirmada";
+            });
+
             var citasCompletadas = citas.Count(c => (c.estado ?? "").ToLower() == "completada");
             var citasCanceladas = citas.Count(c => (c.estado ?? "").ToLower() == "cancelada");
 
@@ -599,7 +636,10 @@ namespace CitasMedicasApp.Views
 
         private async Task EditarCita(Cita cita)
         {
-            await Navigation.PushAsync(new CrearCitaPage(cita, esEdicion: true));
+            // Asumo que tienes un constructor que acepta una cita para editar
+            await DisplayAlert("🚧 En Desarrollo", "Funcionalidad de edición en desarrollo", "OK");
+            // TODO: Implementar página de edición o modificar CrearCitaPage
+            // await Navigation.PushAsync(new CrearCitaPage(cita));
         }
 
         private async Task AtenderCita(Cita cita)

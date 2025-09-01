@@ -8,22 +8,71 @@ namespace CitasMedicasApp
         public App()
         {
             InitializeComponent();
+            SetMainPage();
+        }
 
-            // Verificar si el usuario ya está logueado
-            if (Application.Current.Properties.ContainsKey("UserId") &&
-                Application.Current.Properties.ContainsKey("UserName"))
+        private void SetMainPage()
+        {
+            try
             {
-                // Usuario ya logueado, ir directo al menú principal
-                MainPage = new NavigationPage(new MenuPrincipalPage())
+                // Verificar si el usuario ya está logueado
+                if (Application.Current.Properties.ContainsKey("UserId") &&
+                    Application.Current.Properties.ContainsKey("UserName"))
                 {
-                    BarBackgroundColor = Color.FromHex("#3498db"),
-                    BarTextColor = Color.White
-                };
+                    // Usuario ya logueado, ir directo al menú principal
+                    MainPage = CreateNavigationPage(new MenuPrincipalPage());
+                }
+                else
+                {
+                    // Usuario no logueado, mostrar login
+                    MainPage = CreateNavigationPage(new LoginPage());
+                }
             }
-            else
+            catch (System.Exception ex)
             {
-                // Usuario no logueado, mostrar login
-                MainPage = new LoginPage();
+                // Fallback en caso de error
+                MainPage = CreateNavigationPage(new LoginPage());
+                System.Diagnostics.Debug.WriteLine($"Error en SetMainPage: {ex}");
+            }
+        }
+
+        // Método helper para crear NavigationPage con estilo consistente
+        private NavigationPage CreateNavigationPage(Page page)
+        {
+            return new NavigationPage(page)
+            {
+                BarBackgroundColor = Color.FromHex("#3498db"),
+                BarTextColor = Color.White
+            };
+        }
+
+        // MÉTODO PÚBLICO ESTÁTICO CORREGIDO
+        public static void SetMainPageSafely(Page page)
+        {
+            try
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    // Crear NavigationPage directamente sin acceder a instancia
+                    Current.MainPage = new NavigationPage(page)
+                    {
+                        BarBackgroundColor = Color.FromHex("#3498db"),
+                        BarTextColor = Color.White
+                    };
+                });
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error en SetMainPageSafely: {ex}");
+                // Fallback más básico sin Device.BeginInvokeOnMainThread
+                try
+                {
+                    Current.MainPage = new NavigationPage(page);
+                }
+                catch (System.Exception ex2)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error en fallback: {ex2}");
+                }
             }
         }
 

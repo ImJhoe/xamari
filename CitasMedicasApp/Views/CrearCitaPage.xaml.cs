@@ -298,7 +298,7 @@ namespace CitasMedicasApp.Views
             var cedula = CedulaEntry.Text?.Trim();
 
             // Ir a registro con flujo de retorno automático
-            await Navigation.PushAsync(new RegistroPacientePage(cedula, vieneDeFlujoCita: true));
+            await Navigation.PushAsync(new RegistroPacientePage(cedula, true));
         }
 
         // ============ SELECCIONES DEL FORMULARIO ============
@@ -529,28 +529,52 @@ namespace CitasMedicasApp.Views
                 }
             });
 
-            // Detalles adicionales
+            // En el método MostrarResumenCita(), reemplaza la sección problemática:
             if (!string.IsNullOrEmpty(MotivoEditor.Text) || TipoCitaPicker.SelectedItem != null)
             {
+                var detallesStackLayout = new StackLayout
+                {
+                    Spacing = 5
+                };
+
+                // Agregar el título
+                detallesStackLayout.Children.Add(new Label
+                {
+                    Text = "📋 DETALLES ADICIONALES",
+                    FontAttributes = FontAttributes.Bold,
+                    FontSize = 14,
+                    TextColor = Color.FromHex("#2c3e50")
+                });
+
+                // Agregar motivo si existe
+                if (!string.IsNullOrEmpty(MotivoEditor.Text))
+                {
+                    detallesStackLayout.Children.Add(new Label
+                    {
+                        Text = $"📝 {MotivoEditor.Text}",
+                        FontSize = 12
+                    });
+                }
+
+                // Agregar tipo de cita si está seleccionado
+                if (TipoCitaPicker.SelectedItem != null)
+                {
+                    detallesStackLayout.Children.Add(new Label
+                    {
+                        Text = $"💻 Tipo: {TipoCitaPicker.SelectedItem}",
+                        FontSize = 12
+                    });
+                }
+
+                // Crear el Frame con el StackLayout configurado
                 ResumenDetallesStack.Children.Add(new Frame
                 {
                     BackgroundColor = Color.FromHex("#f4f4f4"),
                     CornerRadius = 8,
                     Padding = new Thickness(10),
-                    Content = new StackLayout
-                    {
-                        Spacing = 5,
-                        Children =
-                        {
-                            new Label { Text = "📋 DETALLES ADICIONALES", FontAttributes = FontAttributes.Bold, FontSize = 14, TextColor = Color.FromHex("#2c3e50") },
-                            !string.IsNullOrEmpty(MotivoEditor.Text) ? new Label { Text = $"📝 {MotivoEditor.Text}", FontSize = 12 } : null,
-                            TipoCitaPicker.SelectedItem != null ? new Label { Text = $"💻 Tipo: {TipoCitaPicker.SelectedItem}", FontSize = 12 } : null
-                        }.Where(child => child != null).ToArray()
-                    }
+                    Content = detallesStackLayout // ✅ CORRECTO
                 });
             }
-
-            ResumenCitaFrame.IsVisible = true;
         }
 
         // ============ VALIDACIÓN Y CONFIRMACIÓN ============

@@ -66,6 +66,7 @@ namespace CitasMedicasApp.Views
             }
         }
 
+        // En ConsultarMedicoPage.xaml.cs, método CargarHorariosMedico
         private async Task CargarHorariosMedico(MedicoCompleto medico)
         {
             try
@@ -73,13 +74,22 @@ namespace CitasMedicasApp.Views
                 var response = await _apiService.ObtenerHorariosMedicoDetalladosAsync(medico.id_doctor);
                 if (response.success && response.data != null)
                 {
+                    // Convertir strings a TimeSpan si es necesario
+                    foreach (var horario in response.data)
+                    {
+                        // Si la API devuelve strings, convertirlas
+                        if (horario.hora_inicio == default(TimeSpan) && !string.IsNullOrEmpty(horario.hora_inicio.ToString()))
+                        {
+                            // La conversión ya está hecha si usas TimeSpan en el modelo
+                        }
+                    }
                     medico.horarios = response.data;
                 }
             }
             catch (Exception ex)
             {
-                // Log del error, pero no bloquear la carga del médico
                 System.Diagnostics.Debug.WriteLine($"Error cargando horarios del médico {medico.id_doctor}: {ex.Message}");
+                medico.horarios = new List<HorarioMedicoDetallado>(); // Lista vacía para evitar null reference
             }
         }
 

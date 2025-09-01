@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace CitasMedicasApp.Views
@@ -24,37 +25,66 @@ namespace CitasMedicasApp.Views
                 string userName = Application.Current.Properties["UserName"].ToString();
                 string userType = Application.Current.Properties.ContainsKey("UserType") ?
                     Application.Current.Properties["UserType"].ToString() : "Usuario";
-
                 WelcomeLabel.Text = $"Bienvenido {userName} ({userType})";
             }
         }
 
-        // ============ NAVEGACIÓN A MÉDICOS ============
-        private async void OnRegistroMedicoTapped(object sender, EventArgs e)
+        // MÉTODO CORREGIDO PARA NAVEGACIÓN - REEMPLAZA COMPLETAMENTE LA PÁGINA
+        private void NavigateToPage<T>() where T : Page, new()
         {
-            await Navigation.PushAsync(new RegistroMedicoPage());
+            try
+            {
+                var page = new T();
+                Application.Current.MainPage = new NavigationPage(page);
+            }
+            catch (Exception ex)
+            {
+                DisplayAlert("Error", $"Error al navegar: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"Error de navegación: {ex}");
+            }
         }
 
-        private async void OnConsultarMedicoTapped(object sender, EventArgs e)
+        // MÉTODO ALTERNATIVO PARA NAVEGACIÓN MODAL (mantiene el stack)
+        private async Task NavigateToPageModalAsync<T>() where T : Page, new()
         {
-            await Navigation.PushAsync(new ConsultarMedicoPage());
+            try
+            {
+                var page = new T();
+                await Application.Current.MainPage.Navigation.PushModalAsync(new NavigationPage(page));
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Error al navegar: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"Error de navegación: {ex}");
+            }
+        }
+
+        // ============ NAVEGACIÓN A MÉDICOS ============
+        private void OnRegistroMedicoTapped(object sender, EventArgs e)
+        {
+            NavigateToPage<RegistroMedicoPage>();
+        }
+
+        private void OnConsultarMedicoTapped(object sender, EventArgs e)
+        {
+            NavigateToPage<ConsultarMedicoPage>();
         }
 
         // ============ NAVEGACIÓN A CITAS ============
-        private async void OnCrearCitaTapped(object sender, EventArgs e)
+        private void OnCrearCitaTapped(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new CrearCitaPage());
+            NavigateToPage<CrearCitaPage>();
         }
 
-        private async void OnVerCitasTapped(object sender, EventArgs e)
+        private void OnVerCitasTapped(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new VerCitasPage());
+            NavigateToPage<VerCitasPage>();
         }
 
         // ============ NAVEGACIÓN A PACIENTES ============
-        private async void OnRegistroPacienteTapped(object sender, EventArgs e)
+        private void OnRegistroPacienteTapped(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new RegistroPacientePage());
+            NavigateToPage<RegistroPacientePage>();
         }
 
         // ============ CONFIGURACIÓN ============
@@ -73,17 +103,24 @@ namespace CitasMedicasApp.Views
         // ============ CERRAR SESIÓN ============
         private async void OnCerrarSesionClicked(object sender, EventArgs e)
         {
-            bool answer = await DisplayAlert("Cerrar Sesión",
-                                           "¿Está seguro que desea cerrar sesión?",
-                                           "Sí", "No");
-            if (answer)
+            try
             {
-                // Limpiar datos guardados
-                Application.Current.Properties.Clear();
-                await Application.Current.SavePropertiesAsync();
+                bool answer = await DisplayAlert("Cerrar Sesión",
+                                               "¿Está seguro que desea cerrar sesión?",
+                                               "Sí", "No");
+                if (answer)
+                {
+                    // Limpiar datos guardados
+                    Application.Current.Properties.Clear();
+                    await Application.Current.SavePropertiesAsync();
 
-                // Volver al login
-                Application.Current.MainPage = new LoginPage();
+                    // USAR EL MÉTODO ESTÁTICO DE App.cs
+                    App.SetMainPageSafely(new LoginPage());
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Error al cerrar sesión: {ex.Message}", "OK");
             }
         }
     }

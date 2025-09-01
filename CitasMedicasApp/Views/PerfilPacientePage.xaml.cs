@@ -71,12 +71,23 @@ namespace CitasMedicasApp.Views
                     var paciente = response.data;
                     InfoMedicaFrame.IsVisible = true;
 
-                    FechaNacimientoLabel.Text = paciente.fecha_nacimiento?.ToString("dd/MM/yyyy") ?? "No registrada";
+                    // ✅ CORREGIR el operador nullable para DateTime
+                    FechaNacimientoLabel.Text = paciente.fecha_nacimiento.HasValue
+                        ? paciente.fecha_nacimiento.Value.ToString("dd/MM/yyyy")
+                        : "No registrada";
+
                     TipoSangreLabel.Text = paciente.tipo_sangre ?? "No registrado";
-                    AlergiasLabel.Text = !string.IsNullOrEmpty(paciente.alergias) ? paciente.alergias : "Ninguna registrada";
+                    AlergiasLabel.Text = !string.IsNullOrEmpty(paciente.alergias)
+                        ? paciente.alergias
+                        : "Ninguna registrada";
+
                     ContactoEmergenciaLabel.Text = !string.IsNullOrEmpty(paciente.contacto_emergencia)
                         ? $"{paciente.contacto_emergencia} - {paciente.telefono_emergencia}"
                         : "No registrado";
+                }
+                else
+                {
+                    InfoMedicaFrame.IsVisible = false;
                 }
             }
             catch (Exception ex)

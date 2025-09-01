@@ -11,7 +11,7 @@ using CitasMedicasApp.Models;
 public class ApiService
 {
     private readonly HttpClient _httpClient;
-    private readonly string _baseUrl = "http://192.168.1.8:8081/webservice-slim";
+    private readonly string _baseUrl = "http://192.168.21.111:8081/webservice-slim";
 
     public ApiService()
     {
@@ -270,7 +270,7 @@ public class ApiService
                 id_rol = 71,
                 telefono = paciente.telefono,
                 // ✅ CORRECTO:
-                fecha_nacimiento = paciente.fecha_nacimiento.ToString("yyyy-MM-dd") ?? "",
+                fecha_nacimiento = paciente.fecha_nacimiento.ToString(),
                 tipo_sangre = paciente.tipo_sangre,
                 alergias = paciente.alergias,
                 antecedentes_medicos = paciente.antecedentes_medicos,

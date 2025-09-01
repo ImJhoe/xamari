@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using CitasMedicasApp.Models;
+using System.Linq;
 
 namespace CitasMedicasApp.Views
 {
@@ -11,6 +12,7 @@ namespace CitasMedicasApp.Views
     {
         private readonly ApiService _apiService;
         private string _cedulaInicial;
+        private bool _vieneDelFlujoCitas; // Nueva propiedad para controlar el flujo
 
         public string CedulaInicial
         {
@@ -18,31 +20,70 @@ namespace CitasMedicasApp.Views
             set
             {
                 _cedulaInicial = value;
-                if (!string.IsNullOrEmpty(value))
+                if (!string.IsNullOrEmpty(value) && CedulaEntry != null)
                 {
                     CedulaEntry.Text = value;
                 }
             }
         }
 
+        // Constructor original (sin parámetros)
         public RegistroPacientePage()
         {
             InitializeComponent();
             _apiService = new ApiService();
+            _vieneDelFlujoCitas = false;
+            ConfigurarPagina();
+        }
 
+        // CONSTRUCTOR CORREGIDO (con 2 parámetros) - Soluciona el error CS1729
+        public RegistroPacientePage(string cedula, bool vieneDelFlujoCitas)
+        {
+            InitializeComponent();
+            _apiService = new ApiService();
+            _cedulaInicial = cedula;
+            _vieneDelFlujoCitas = vieneDelFlujoCitas;
+            ConfigurarPagina();
+
+            // Establecer la cédula en el Entry después de InitializeComponent
+            if (!string.IsNullOrEmpty(cedula))
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    CedulaEntry.Text = cedula;
+                });
+            }
+        }
+
+        private void ConfigurarPagina()
+        {
             // Establecer fecha de nacimiento por defecto (adulto de 30 años)
-            FechaNacimientoDatePicker.Date = DateTime.Now.AddYears(-30);
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                if (FechaNacimientoDatePicker != null)
+                {
+                    FechaNacimientoDatePicker.Date = DateTime.Now.AddYears(-30);
+                }
+            });
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
 
-            // Si viene de crear cita, mostrar información del flujo
-            if (!string.IsNullOrEmpty(_cedulaInicial))
+            // Configurar mensaje según el contexto
+            Device.BeginInvokeOnMainThread(() =>
             {
-                FlujoInfoLabel.Text = "💡 Después de registrar al paciente, regresará automáticamente al formulario de citas para completar la programación.";
-            }
+                if (_vieneDelFlujoCitas)
+                {
+                    FlujoInfoLabel.Text = "💡 PUNTO 5: Después de registrar al paciente, regresará automáticamente al formulario de citas para completar la programación.";
+                    FlujoInfoLabel.TextColor = Color.FromHex("#155724");
+                }
+                else if (!string.IsNullOrEmpty(_cedulaInicial))
+                {
+                    FlujoInfoLabel.Text = "💡 Después de registrar al paciente, regresará automáticamente al formulario de citas para completar la programación.";
+                }
+            });
         }
 
         private async void OnRegistrarPacienteClicked(object sender, EventArgs e)
@@ -76,23 +117,35 @@ namespace CitasMedicasApp.Views
                 if (response.success)
                 {
                     ShowMessage("✅ Paciente registrado exitosamente", true);
-                    await DisplayAlert("Éxito",
-                        $"El paciente {nuevoPaciente.nombre_completo} ha sido registrado correctamente.",
-                        "OK");
 
-                    // Punto 7: Regresar automáticamente al formulario de citas
-                    if (!string.IsNullOrEmpty(_cedulaInicial))
+                    if (_vieneDelFlujoCitas || !string.IsNullOrEmpty(_cedulaInicial))
                     {
-                        await DisplayAlert("Información",
-                            "Ahora será redirigido al formulario de citas para completar la programación.",
+                        // PUNTO 6: Retorno automático al formulario de cita
+                        await DisplayAlert("✅ Éxito",
+                            $"Paciente {nuevoPaciente.NombreCompleto} registrado correctamente.\n\nAhora regresará al formulario de citas para completar la programación.",
                             "Continuar");
 
-                        // Navegar de vuelta a crear cita
-                        await Shell.Current.GoToAsync("//crearcita");
+                        // Navegar a CrearCitaPage con la cédula del paciente recién creado
+                        await Navigation.PushAsync(new CrearCitaPage(nuevoPaciente.cedula, true));
+
+                        // Limpiar el stack de navegación para evitar loops
+                        var existingPages = Navigation.NavigationStack.ToList();
+                        for (int i = existingPages.Count - 2; i >= 0; i--)
+                        {
+                            if (existingPages[i] is BuscarPacientePage ||
+                                existingPages[i] is RegistroPacientePage)
+                            {
+                                Navigation.RemovePage(existingPages[i]);
+                            }
+                        }
                     }
                     else
                     {
-                        // Si no viene del flujo de citas, limpiar formulario
+                        // Flujo normal - registro independiente
+                        await DisplayAlert("Éxito",
+                            $"El paciente {nuevoPaciente.NombreCompleto} ha sido registrado correctamente.",
+                            "OK");
+
                         LimpiarFormulario();
                     }
                 }
@@ -103,6 +156,7 @@ namespace CitasMedicasApp.Views
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error registrando paciente: {ex.Message}");
                 ShowMessage($"❌ Error de conexión: {ex.Message}", false);
             }
             finally
@@ -172,52 +226,66 @@ namespace CitasMedicasApp.Views
 
             if (answer)
             {
-                if (!string.IsNullOrEmpty(_cedulaInicial))
+                if (_vieneDelFlujoCitas || !string.IsNullOrEmpty(_cedulaInicial))
                 {
-                    // Si viene del flujo de citas, regresar a crear cita
-                    await Shell.Current.GoToAsync("//crearcita");
+                    // Si viene del flujo de citas, regresar a buscar paciente
+                    await Navigation.PopAsync();
                 }
                 else
                 {
                     // Si no, regresar al menú principal
-                    await Shell.Current.GoToAsync("//main");
+                    await Navigation.PopAsync();
                 }
             }
         }
 
         private void LimpiarFormulario()
         {
-            CedulaEntry.Text = "";
-            NombresEntry.Text = "";
-            ApellidosEntry.Text = "";
-            EmailEntry.Text = "";
-            TelefonoEntry.Text = "";
-            FechaNacimientoDatePicker.Date = DateTime.Now.AddYears(-30);
-            TipoSangrePicker.SelectedItem = null;
-            AlergiasEditor.Text = "";
-            AntecedentesEditor.Text = "";
-            ContactoEmergenciaEntry.Text = "";
-            TelefonoEmergenciaEntry.Text = "";
-            NumeroSeguroEntry.Text = "";
-            MessageLabel.IsVisible = false;
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                CedulaEntry.Text = "";
+                NombresEntry.Text = "";
+                ApellidosEntry.Text = "";
+                EmailEntry.Text = "";
+                TelefonoEntry.Text = "";
+                FechaNacimientoDatePicker.Date = DateTime.Now.AddYears(-30);
+                TipoSangrePicker.SelectedItem = null;
+                AlergiasEditor.Text = "";
+                AntecedentesEditor.Text = "";
+                ContactoEmergenciaEntry.Text = "";
+                TelefonoEmergenciaEntry.Text = "";
+                NumeroSeguroEntry.Text = "";
+                MessageLabel.IsVisible = false;
+            });
         }
 
         private void ShowLoading(bool isLoading)
         {
-            LoadingIndicator.IsVisible = isLoading;
-            LoadingIndicator.IsRunning = isLoading;
-            RegistrarPacienteButton.IsEnabled = !isLoading;
-            CancelarButton.IsEnabled = !isLoading;
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                LoadingIndicator.IsVisible = isLoading;
+                LoadingIndicator.IsRunning = isLoading;
+                RegistrarPacienteButton.IsEnabled = !isLoading;
+                CancelarButton.IsEnabled = !isLoading;
+                RegistrarPacienteButton.Text = isLoading ? "Registrando..." : "✅ REGISTRAR PACIENTE";
+            });
         }
 
         private async void ShowMessage(string message, bool isSuccess)
         {
-            MessageLabel.Text = message;
-            MessageLabel.TextColor = isSuccess ? Color.Green : Color.Red;
-            MessageLabel.IsVisible = true;
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                MessageLabel.Text = message;
+                MessageLabel.TextColor = isSuccess ? Color.Green : Color.Red;
+                MessageLabel.IsVisible = true;
+            });
 
             await Task.Delay(4000);
-            MessageLabel.IsVisible = false;
+
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                MessageLabel.IsVisible = false;
+            });
         }
     }
 }

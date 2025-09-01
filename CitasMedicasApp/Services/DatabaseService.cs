@@ -11,7 +11,7 @@ public class DatabaseService
 
     public DatabaseService()
     {
-        _connectionString = "Server=192.168.1.8;Port=3306;Database=menudinamico;Uid=root;Pwd=;";
+        _connectionString = "Server=192.168.21.111;Port=3306;Database=menudinamico;Uid=root;Pwd=;";
     }
 
     public async Task<bool> TestConnectionAsync()
@@ -227,26 +227,36 @@ public class DatabaseService
             await connection.OpenAsync();
 
             var query = @"
-                SELECT c.*, 
-                       CONCAT(up.nombres, ' ', up.apellidos) as nombre_paciente,
-                       CONCAT(ud.nombres, ' ', ud.apellidos) as nombre_medico,
-                       e.nombre_especialidad,
-                       s.nombre_sucursal
-                FROM citas c
-                INNER JOIN pacientes p ON c.id_paciente = p.id_paciente
-                INNER JOIN usuarios up ON p.id_usuario = up.id_usuario
-                INNER JOIN doctores d ON c.id_doctor = d.id_doctor
-                INNER JOIN usuarios ud ON d.id_usuario = ud.id_usuario
-                INNER JOIN especialidades e ON d.id_especialidad = e.id_especialidad
-                INNER JOIN sucursales s ON c.id_sucursal = s.id_sucursal
-                ORDER BY c.fecha_hora DESC";
+    SELECT c.*, 
+           TIME(c.fecha_hora) as hora_inicio,  -- ✅ EXTRAER HORA DE fecha_hora
+           CONCAT(up.nombres, ' ', up.apellidos) as nombre_paciente,
+           CONCAT(ud.nombres, ' ', ud.apellidos) as nombre_medico,
+           e.nombre_especialidad,
+           s.nombre_sucursal
+    FROM citas c
+    -- ... resto de la consulta
+";
 
             using var command = new MySqlCommand(query, connection);
             using var reader = await command.ExecuteReaderAsync();
 
+            // En DatabaseService.cs, método ObtenerCitasAsync()
             while (await reader.ReadAsync())
             {
                 var fechaHora = Convert.ToDateTime(reader["fecha_hora"]);
+
+                // ✅ Manejar hora_inicio que puede ser null
+                TimeSpan horaInicio = TimeSpan.Zero;
+                if (reader["hora_inicio"] != DBNull.Value && !string.IsNullOrEmpty(reader["hora_inicio"].ToString()))
+                {
+                    horaInicio = TimeSpan.Parse(reader["hora_inicio"].ToString());
+                }
+                else
+                {
+                    // Si no hay hora_inicio, usar la hora de fecha_hora
+                    horaInicio = fechaHora.TimeOfDay;
+                }
+
                 citas.Add(new Cita
                 {
                     id_cita = Convert.ToInt32(reader["id_cita"]),
@@ -254,14 +264,14 @@ public class DatabaseService
                     id_medico = Convert.ToInt32(reader["id_doctor"]),
                     fecha_hora = fechaHora,
                     fecha_cita = fechaHora.Date,
-                    hora_inicio = fechaHora.ToString("HH:mm"),
+                    hora_inicio = horaInicio, // ✅ USAR LA VARIABLE SEGURA
                     estado = reader["estado"].ToString(),
                     motivo = reader["motivo"].ToString(),
                     nombre_paciente = reader["nombre_paciente"].ToString(),
                     nombre_medico = reader["nombre_medico"].ToString(),
                     especialidad = reader["nombre_especialidad"].ToString(),
                     nombre_sucursal = reader["nombre_sucursal"].ToString(),
-                    tipo_cita = reader["tipo_cita"].ToString()
+                    tipo_cita = reader["tipo_cita"] != DBNull.Value ? reader["tipo_cita"].ToString() : "presencial"
                 });
             }
         }

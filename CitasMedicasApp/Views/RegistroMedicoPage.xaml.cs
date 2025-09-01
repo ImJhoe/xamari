@@ -136,15 +136,15 @@ namespace CitasMedicasApp.Views
             // Día de la semana
             var diaLabel = new Label { Text = "Día de la Semana:", FontAttributes = FontAttributes.Bold, TextColor = Color.FromHex("#555") };
             var diasSemana = new List<DiasSemanaItem>
-            {
-                new DiasSemanaItem { Numero = 1, Nombre = "Lunes" },
-                new DiasSemanaItem { Numero = 2, Nombre = "Martes" },
-                new DiasSemanaItem { Numero = 3, Nombre = "Miércoles" },
-                new DiasSemanaItem { Numero = 4, Nombre = "Jueves" },
-                new DiasSemanaItem { Numero = 5, Nombre = "Viernes" },
-                new DiasSemanaItem { Numero = 6, Nombre = "Sábado" },
-                new DiasSemanaItem { Numero = 7, Nombre = "Domingo" }
-            };
+    {
+        new DiasSemanaItem { Numero = 1, Nombre = "Lunes" },
+        new DiasSemanaItem { Numero = 2, Nombre = "Martes" },
+        new DiasSemanaItem { Numero = 3, Nombre = "Miércoles" },
+        new DiasSemanaItem { Numero = 4, Nombre = "Jueves" },
+        new DiasSemanaItem { Numero = 5, Nombre = "Viernes" },
+        new DiasSemanaItem { Numero = 6, Nombre = "Sábado" },
+        new DiasSemanaItem { Numero = 7, Nombre = "Domingo" }
+    };
             var diaPicker = new Picker
             {
                 Title = "Seleccione día",
@@ -232,14 +232,16 @@ namespace CitasMedicasApp.Views
                     AgregarHorarioALista(nuevoHorario);
                     ActualizarContadorHorarios();
 
-                    await Navigation.PopAsync();
+                    // CAMBIO CRÍTICO: Usar PopModalAsync en lugar de PopAsync
+                    await Navigation.PopModalAsync();
                     ShowMessage($"✅ Horario agregado: {nuevoHorario.DiaSemanaNombre} {nuevoHorario.HoraInicio:hh\\:mm} - {nuevoHorario.HoraFin:hh\\:mm}", true);
                 }
             };
 
             cancelarButton.Clicked += async (s, args) =>
             {
-                await Navigation.PopAsync();
+                // CAMBIO CRÍTICO: Usar PopModalAsync en lugar de PopAsync
+                await Navigation.PopModalAsync();
             };
 
             botonesStack.Children.Add(guardarButton);
@@ -249,9 +251,9 @@ namespace CitasMedicasApp.Views
             scrollView.Content = mainStack;
             popup.Content = scrollView;
 
-            await Navigation.PushAsync(popup);
+            // CAMBIO CRÍTICO: Usar PushModalAsync en lugar de PushAsync
+            await Navigation.PushModalAsync(popup);
         }
-
         private bool ValidarDatosHorario(Picker sucursalPicker, Picker diaPicker, TimePicker horaInicioPicker, TimePicker horaFinPicker, Picker duracionPicker)
         {
             if (sucursalPicker.SelectedItem == null)
@@ -468,10 +470,10 @@ namespace CitasMedicasApp.Views
                     {
                         id_medico = idMedico,
                         id_sucursal = horario.Sucursal.id_sucursal,
-                        dia_semana = horario.DiaSemanaNumero.ToString(),
-                        hora_inicio = horario.HoraInicio.ToString(@"hh\:mm"),
-                        hora_fin = horario.HoraFin.ToString(@"hh\:mm"),
-                        duracion_cita = horario.DuracionCita
+                        dia_semana = horario.DiaSemanaNumero, // ✅ CORRECTO: int en lugar de string
+                        hora_inicio = horario.HoraInicio,     // ✅ CORRECTO: TimeSpan directo
+                        hora_fin = horario.HoraFin,           // ✅ CORRECTO: TimeSpan directo
+                        duracion_consulta = horario.DuracionCita // ✅ CORRECTO: usar duracion_consulta
                     };
 
                     var responseHorario = await _apiService.AsignarHorarioIndividualAsync(horarioMedico);

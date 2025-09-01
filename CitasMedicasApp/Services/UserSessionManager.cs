@@ -11,7 +11,6 @@ namespace CitasMedicasApp.Services
         private const string USER_KEY = "current_user";
         private const string PERMISSIONS_KEY = "user_permissions";
         private const string TOKEN_KEY = "auth_token";
-
         private static Usuario _currentUser;
         private static UserPermissions _currentPermissions;
 
@@ -88,7 +87,7 @@ namespace CitasMedicasApp.Services
                 if (Application.Current.Properties.ContainsKey(TOKEN_KEY))
                     Application.Current.Properties.Remove(TOKEN_KEY);
 
-                await Application.Current.SavePropertiesAsync();
+                await Task.CompletedTask;
             }
             catch (Exception ex)
             {

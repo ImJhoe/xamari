@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              x:Class="CitasMedicasApp.Views.HorariosMedicosPage"
              Title="Horarios Médicos">
 
@@ -38,10 +39,10 @@
                         <!-- Seleccionar Fecha -->
                         <StackLayout>
                             <Label Text="Fecha:" FontAttributes="Bold" TextColor="#555"/>
+                            <!-- ✅ CORREGIDO: Mover el namespace al ContentPage y usar DateTime.Now -->
                             <DatePicker x:Name="FechaPicker" 
                                        Date="{x:Static sys:DateTime.Now}"
-                                       DateSelected="OnFechaSeleccionada"
-                                       xmlns:sys="clr-namespace:System;assembly=mscorlib"/>
+                                       DateSelected="OnFechaSeleccionada"/>
                         </StackLayout>
 
                         <!-- Seleccionar Sucursal -->
