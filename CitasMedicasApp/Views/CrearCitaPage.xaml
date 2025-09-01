@@ -2,202 +2,255 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="CitasMedicasApp.Views.CrearCitaPage"
-             Title="Crear Nueva Cita">
+             Title="Crear Cita">
 
-    <ScrollView BackgroundColor="#f8f9fa">
-        <StackLayout Padding="20" Spacing="15">
+    <ContentPage.Content>
+        <ScrollView Padding="20" BackgroundColor="#f8f9fa">
+            <StackLayout Spacing="20">
 
-            <!-- Título -->
-            <Label Text="CREAR NUEVA CITA MÉDICA" 
-                   FontSize="22" 
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"
-                   TextColor="#2c3e50"
-                   Margin="0,10,0,20"/>
-
-            <!-- PASO 1: Búsqueda del Paciente -->
-            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
-                <StackLayout Spacing="15">
-                    <Label Text="PASO 1: BUSCAR PACIENTE" 
-                           FontSize="16" 
-                           FontAttributes="Bold" 
-                           TextColor="#34495e"/>
-
-                    <!-- Búsqueda por cédula -->
+                <!-- Título dinámico -->
+                <Frame x:Name="TituloFrame" BackgroundColor="#e67e22" HasShadow="True" CornerRadius="10">
                     <StackLayout Orientation="Horizontal" Spacing="10">
-                        <Entry x:Name="CedulaPacienteEntry" 
-                               Placeholder="Ingrese cédula del paciente"
-                               Keyboard="Numeric"
-                               MaxLength="10"
-                               HorizontalOptions="FillAndExpand"/>
-
-                        <Button x:Name="BuscarPacienteButton" 
-                                Text="🔍 BUSCAR" 
-                                BackgroundColor="#3498db"
-                                TextColor="White"
-                                CornerRadius="20"
-                                Clicked="OnBuscarPacienteClicked"/>
+                        <Label x:Name="TituloIcon" Text="📅" FontSize="24"/>
+                        <StackLayout VerticalOptions="Center">
+                            <Label x:Name="TituloLabel"
+                                   Text="CREAR NUEVA CITA" 
+                                   TextColor="White" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold"/>
+                            <Label x:Name="SubtituloLabel"
+                                   Text="Punto 3 de la lista de cotejo" 
+                                   TextColor="#ecf0f1" 
+                                   FontSize="12"/>
+                        </StackLayout>
                     </StackLayout>
+                </Frame>
 
-                    <!-- Resultado de la búsqueda -->
-                    <StackLayout x:Name="ResultadoBusquedaStack" IsVisible="False">
-                        <!-- Se llenará dinámicamente -->
+                <!-- PUNTO 3 y 4: Búsqueda de paciente por cédula -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="🔍 PUNTO 3-4: BUSCAR PACIENTE POR CÉDULA" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#e67e22"/>
+                        <Label Text="Opción de búsqueda por cédula del paciente" 
+                               FontSize="12" 
+                               TextColor="#7f8c8d"/>
+
+                        <StackLayout Orientation="Horizontal" Spacing="10">
+                            <Entry x:Name="CedulaEntry" 
+                                   Placeholder="Ingrese cédula del paciente"
+                                   Keyboard="Numeric"
+                                   MaxLength="10"
+                                   HorizontalOptions="FillAndExpand"/>
+
+                            <Button x:Name="BuscarPacienteButton"
+                                    Text="🔍"
+                                    BackgroundColor="#3498db"
+                                    TextColor="White"
+                                    CornerRadius="20"
+                                    WidthRequest="50"
+                                    Clicked="OnBuscarPacienteClicked"/>
+                        </StackLayout>
                     </StackLayout>
+                </Frame>
 
-                    <!-- Mensaje cuando no se encuentra paciente -->
-                    <StackLayout x:Name="PacienteNoEncontradoStack" IsVisible="False" Spacing="10">
-                        <Label Text="⚠️ Paciente no encontrado" 
-                               TextColor="#e74c3c" 
-                               FontAttributes="Bold"
-                               HorizontalOptions="Center"/>
+                <!-- RESULTADO DE BÚSQUEDA DE PACIENTE -->
+                <StackLayout x:Name="ResultadoPacienteStack" IsVisible="False" Spacing="10">
 
-                        <Button x:Name="AñadirPacienteButton" 
-                                Text="➕ AÑADIR PACIENTE" 
+                    <!-- Paciente encontrado -->
+                    <Frame x:Name="PacienteEncontradoFrame" 
+                           BackgroundColor="White" 
+                           HasShadow="True" 
+                           CornerRadius="10"
+                           IsVisible="False">
+                        <StackLayout Spacing="10">
+                            <Label Text="✅ PACIENTE ENCONTRADO" 
+                                   FontAttributes="Bold" 
+                                   FontSize="16"
+                                   TextColor="#27ae60"/>
+
+                            <StackLayout x:Name="DatosPacienteStack"/>
+
+                            <Button Text="📅 CONTINUAR CON LA CITA"
+                                    BackgroundColor="#27ae60"
+                                    TextColor="White"
+                                    CornerRadius="25"
+                                    Clicked="OnContinuarConCitaClicked"/>
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Paciente NO encontrado - PUNTO 4B -->
+                    <Frame x:Name="PacienteNoEncontradoFrame" 
+                           BackgroundColor="White" 
+                           HasShadow="True" 
+                           CornerRadius="10"
+                           IsVisible="False">
+                        <StackLayout Spacing="15">
+                            <Label Text="❌ PACIENTE NO ENCONTRADO" 
+                                   FontAttributes="Bold" 
+                                   FontSize="16"
+                                   TextColor="#e74c3c"/>
+
+                            <Label Text="No existe un paciente registrado con esa cédula." 
+                                   FontSize="14" 
+                                   TextColor="#7f8c8d"/>
+
+                            <!-- PUNTO 4B: Botón "Añadir paciente" -->
+                            <Button x:Name="AnadirPacienteButton"
+                                    Text="➕ AÑADIR PACIENTE"
+                                    BackgroundColor="#e67e22"
+                                    TextColor="White"
+                                    CornerRadius="25"
+                                    Clicked="OnAnadirPacienteClicked"/>
+                        </StackLayout>
+                    </Frame>
+
+                </StackLayout>
+
+                <!-- FORMULARIO DE CITA - Solo visible después de seleccionar paciente -->
+                <Frame x:Name="FormularioCitaFrame" 
+                       BackgroundColor="White" 
+                       HasShadow="True" 
+                       CornerRadius="10"
+                       IsVisible="False">
+                    <StackLayout Spacing="15">
+                        <Label Text="📋 DETALLES DE LA CITA" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#3498db"/>
+
+                        <!-- Especialidad -->
+                        <StackLayout>
+                            <Label Text="🏥 Especialidad:" FontAttributes="Bold" TextColor="#555"/>
+                            <Picker x:Name="EspecialidadPicker" 
+                                    Title="Seleccione especialidad"
+                                    SelectedIndexChanged="OnEspecialidadChanged"/>
+                        </StackLayout>
+
+                        <!-- Médico -->
+                        <StackLayout>
+                            <Label Text="👨‍⚕️ Médico:" FontAttributes="Bold" TextColor="#555"/>
+                            <Picker x:Name="MedicoPicker" 
+                                    Title="Primero seleccione especialidad"
+                                    SelectedIndexChanged="OnMedicoChanged"/>
+                        </StackLayout>
+
+                        <!-- Sucursal -->
+                        <StackLayout>
+                            <Label Text="🏢 Sucursal:" FontAttributes="Bold" TextColor="#555"/>
+                            <Picker x:Name="SucursalPicker" 
+                                    Title="Primero seleccione médico"
+                                    SelectedIndexChanged="OnSucursalChanged"/>
+                        </StackLayout>
+
+                        <!-- Fecha de la cita -->
+                        <StackLayout>
+                            <Label Text="📅 Fecha de la cita:" FontAttributes="Bold" TextColor="#555"/>
+                            <DatePicker x:Name="FechaCitaPicker" 
+                                       DateSelected="OnFechaChanged"/>
+                        </StackLayout>
+
+                        <!-- PUNTO 7: Horarios disponibles del médico -->
+                        <StackLayout x:Name="HorariosDisponiblesStack" IsVisible="False" Spacing="10">
+                            <Label Text="🕒 PUNTO 7: HORARIOS DISPONIBLES" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#1abc9c"/>
+                            <Label Text="La app muestra horarios disponibles del médico para seleccionar" 
+                                   FontSize="12" 
+                                   TextColor="#7f8c8d"/>
+
+                            <CollectionView x:Name="HorariosCollectionView" HeightRequest="200">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Padding="5">
+                                            <Frame BackgroundColor="{Binding ColorFondo}" 
+                                                   CornerRadius="8" 
+                                                   Padding="10"
+                                                   HasShadow="False">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <StackLayout Grid.Column="0">
+                                                        <Label Text="{Binding HorarioTexto}" 
+                                                               FontAttributes="Bold"/>
+                                                        <Label Text="{Binding EstadoTexto}" 
+                                                               FontSize="12"/>
+                                                    </StackLayout>
+                                                    <RadioButton Grid.Column="1" 
+                                                               IsChecked="{Binding EstaSeleccionado}"
+                                                               IsEnabled="{Binding EstaDisponible}"
+                                                               CheckedChanged="OnHorarioSeleccionado"/>
+                                                </Grid>
+                                            </Frame>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </StackLayout>
+
+                        <!-- Motivo -->
+                        <StackLayout>
+                            <Label Text="📝 Motivo de la consulta:" FontAttributes="Bold" TextColor="#555"/>
+                            <Editor x:Name="MotivoEditor" 
+                                   Placeholder="Describa brevemente el motivo de la consulta"
+                                   HeightRequest="80"/>
+                        </StackLayout>
+
+                        <!-- Tipo de cita -->
+                        <StackLayout>
+                            <Label Text="💻 Tipo de cita:" FontAttributes="Bold" TextColor="#555"/>
+                            <Picker x:Name="TipoCitaPicker"/>
+                        </StackLayout>
+                    </StackLayout>
+                </Frame>
+
+                <!-- RESUMEN DE LA CITA -->
+                <Frame x:Name="ResumenCitaFrame" 
+                       BackgroundColor="White" 
+                       HasShadow="True" 
+                       CornerRadius="10"
+                       IsVisible="False">
+                    <StackLayout Spacing="10">
+                        <Label Text="📋 RESUMEN DE LA CITA" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#9b59b6"/>
+
+                        <StackLayout x:Name="ResumenDetallesStack"/>
+
+                        <Button x:Name="ConfirmarCitaButton"
+                                Text="✅ CONFIRMAR Y CREAR CITA"
                                 BackgroundColor="#27ae60"
                                 TextColor="White"
                                 CornerRadius="25"
-                                Clicked="OnAñadirPacienteClicked"/>
+                                FontAttributes="Bold"
+                                Clicked="OnConfirmarCitaClicked"/>
                     </StackLayout>
+                </Frame>
 
+                <!-- Botones de navegación -->
+                <StackLayout Spacing="10">
+                    <Button x:Name="ActualizarResumenButton"
+                            Text="🔄 ACTUALIZAR RESUMEN"
+                            BackgroundColor="#3498db"
+                            TextColor="White"
+                            CornerRadius="25"
+                            IsVisible="False"
+                            Clicked="OnActualizarResumenClicked"/>
+
+                    <Button Text="❌ CANCELAR"
+                            BackgroundColor="#95a5a6"
+                            TextColor="White"
+                            CornerRadius="25"
+                            Clicked="OnCancelarClicked"/>
                 </StackLayout>
-            </Frame>
 
-            <!-- PASO 2: Datos de la Cita -->
-            <Frame x:Name="DatosCitaFrame" 
-                   BackgroundColor="White" 
-                   HasShadow="True" 
-                   CornerRadius="10"
-                   IsVisible="False">
-                <StackLayout Spacing="15">
-                    <Label Text="PASO 2: DATOS DE LA CITA" 
-                           FontSize="16" 
-                           FontAttributes="Bold" 
-                           TextColor="#34495e"/>
-
-                    <!-- Especialidad -->
-                    <StackLayout>
-                        <Label Text="Especialidad:" FontAttributes="Bold" TextColor="#555"/>
-                        <Picker x:Name="EspecialidadPicker" 
-                                Title="Seleccione una especialidad"
-                                ItemDisplayBinding="{Binding nombre_especialidad}"
-                                SelectedIndexChanged="OnEspecialidadChanged"/>
-                    </StackLayout>
-
-                    <!-- Médico -->
-                    <StackLayout>
-                        <Label Text="Médico:" FontAttributes="Bold" TextColor="#555"/>
-                        <Picker x:Name="MedicoPicker" 
-                                Title="Primero seleccione una especialidad"
-                                ItemDisplayBinding="{Binding nombre_completo}"
-                                SelectedIndexChanged="OnMedicoChanged"/>
-                    </StackLayout>
-
-                    <!-- Sucursal -->
-                    <StackLayout>
-                        <Label Text="Sucursal:" FontAttributes="Bold" TextColor="#555"/>
-                        <Picker x:Name="SucursalPicker" 
-                                Title="Primero seleccione un médico"
-                                ItemDisplayBinding="{Binding nombre_sucursal}"
-                                SelectedIndexChanged="OnSucursalChanged"/>
-                    </StackLayout>
-
-                    <!-- Fecha de la cita -->
-                    <StackLayout>
-                        <Label Text="Fecha de la cita:" FontAttributes="Bold" TextColor="#555"/>
-                        <DatePicker x:Name="FechaCitaDatePicker" 
-                                  MinimumDate="{x:Static x:DateTime.Now}"
-                                  DateSelected="OnFechaSelected"/>
-                    </StackLayout>
-
-                    <!-- Hora disponible -->
-                    <StackLayout x:Name="HoraDisponibleStack" IsVisible="False">
-                        <Label Text="Horarios disponibles:" FontAttributes="Bold" TextColor="#555"/>
-                        <Picker x:Name="HoraPicker" 
-                                Title="Seleccione una hora"/>
-
-                        <!-- Indicador de carga para horarios -->
-                        <ActivityIndicator x:Name="LoadingHorariosIndicator" 
-                                         IsVisible="False"
-                                         IsRunning="False"
-                                         Color="#3498db"/>
-                    </StackLayout>
-
-                    <!-- Tipo de cita -->
-                    <StackLayout>
-                        <Label Text="Tipo de cita:" FontAttributes="Bold" TextColor="#555"/>
-                        <Picker x:Name="TipoCitaPicker" 
-                                Title="Seleccione tipo de cita"
-                                ItemDisplayBinding="{Binding nombre_tipo}"
-                                SelectedIndexChanged="OnTipoCitaChanged"/>
-                    </StackLayout>
-
-                    <!-- Enlace virtual (solo si es virtual) -->
-                    <StackLayout x:Name="EnlaceVirtualStack" IsVisible="False">
-                        <Label Text="Enlace virtual:" FontAttributes="Bold" TextColor="#555"/>
-                        <Entry x:Name="EnlaceVirtualEntry" 
-                               Placeholder="https://zoom.us/j/123456789"/>
-                    </StackLayout>
-
-                    <!-- Motivo -->
-                    <StackLayout>
-                        <Label Text="Motivo de la consulta:" FontAttributes="Bold" TextColor="#555"/>
-                        <Editor x:Name="MotivoEditor" 
-                                Placeholder="Describa brevemente el motivo de la cita..."
-                                HeightRequest="80"/>
-                    </StackLayout>
-
-                    <!-- Notas adicionales -->
-                    <StackLayout>
-                        <Label Text="Notas adicionales (opcional):" FontAttributes="Bold" TextColor="#555"/>
-                        <Editor x:Name="NotasEditor" 
-                                Placeholder="Información adicional relevante..."
-                                HeightRequest="60"/>
-                    </StackLayout>
-
-                </StackLayout>
-            </Frame>
-
-            <!-- Mensaje de estado -->
-            <Label x:Name="MessageLabel" 
-                   Text="" 
-                   IsVisible="False"
-                   HorizontalOptions="Center"
-                   FontAttributes="Bold"
-                   Margin="0,10"/>
-
-            <!-- Botones de acción -->
-            <StackLayout x:Name="BotonesAccionStack" 
-                         IsVisible="False"
-                         Orientation="Horizontal" 
-                         HorizontalOptions="FillAndExpand" 
-                         Spacing="10"
-                         Margin="0,20,0,0">
-
-                <Button x:Name="LimpiarFormButton" 
-                        Text="LIMPIAR" 
-                        BackgroundColor="#95a5a6"
-                        TextColor="White"
-                        CornerRadius="25"
-                        HorizontalOptions="FillAndExpand"
-                        Clicked="OnLimpiarFormClicked"/>
-
-                <Button x:Name="CrearCitaButton" 
-                        Text="CREAR CITA" 
-                        BackgroundColor="#e74c3c"
-                        TextColor="White"
-                        CornerRadius="25"
-                        HorizontalOptions="FillAndExpand"
-                        Clicked="OnCrearCitaClicked"/>
+                <!-- Loading indicator -->
+                <ActivityIndicator x:Name="LoadingIndicator" 
+                                 IsVisible="False" 
+                                 IsRunning="False" 
+                                 Color="#e67e22"/>
 
             </StackLayout>
-
-            <!-- Indicador de carga general -->
-            <ActivityIndicator x:Name="LoadingIndicator" 
-                             IsVisible="False"
-                             IsRunning="False"
-                             Color="#e74c3c"
-                             HeightRequest="50"/>
-
-        </StackLayout>
-    </ScrollView>
+        </ScrollView>
+    </ContentPage.Content>
 </ContentPage>

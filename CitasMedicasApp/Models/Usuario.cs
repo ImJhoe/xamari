@@ -9,74 +9,49 @@ namespace CitasMedicasApp.Models
     {
         public int id { get; set; }
         public string cedula { get; set; }
-        public string username { get; set; }
         public string nombre { get; set; }
         public string apellido { get; set; }
         public string email { get; set; }
         public string telefono { get; set; }
         public string especialidad { get; set; }
         public string tipo_usuario { get; set; }
-        public string token { get; set; }  // ✅ AGREGAR ESTO
-
-        // Propiedad computed para nombre completo
-        public string nombre_completo => $"{nombre} {apellido}";
-    }
-
-    // Models/Paciente.cs
-    public class Paciente
-    {
-        public int id { get; set; }
-        public string cedula { get; set; }
-        public string nombre { get; set; }
-        public string apellido { get; set; }
-        public string telefono { get; set; }
-        public string email { get; set; }
-        public DateTime fecha_nacimiento { get; set; }
-        public string direccion { get; set; }
-        public string genero { get; set; }
-    }
-
-    // Models/Cita.cs
-    public class Cita
-    {
-        public int id { get; set; }
-        public int id_paciente { get; set; }
-        public int id_medico { get; set; }
-        public DateTime fecha_cita { get; set; }
-        public string hora_inicio { get; set; }
-        public string hora_fin { get; set; }
-        public string estado { get; set; }
-        public string motivo { get; set; }
-        public string observaciones { get; set; }
-
-        // Propiedades adicionales para mostrar información
-        public string nombre_paciente { get; set; }
-        public string nombre_medico { get; set; }
-        public string especialidad { get; set; }
-    }
-
-    // Models/HorarioMedico.cs
-    public class HorarioMedico
-    {
-        public int id_horario { get; set; }
-        public int id_medico { get; set; }
-        public int id_doctor { get; set; } // Alias para id_medico
-        public int id_sucursal { get; set; }
-        public string dia_semana { get; set; } // Como string para envío
-        public int dia_semana_numero { get; set; } // Como número
-        public string hora_inicio { get; set; }
-        public string hora_fin { get; set; }
-        public int duracion_cita { get; set; } = 30; // ← AGREGAR ESTA PROPIEDAD
-        public bool activo { get; set; } = true;
-        public DateTime fecha_creacion { get; set; }
-    }
-
-    // Models/ApiResponse.cs
-    public class ApiResponse<T>
-    {
-        public bool success { get; set; }
-        public string message { get; set; }
-        public T data { get; set; }
+        public string username { get; set; }
         public string token { get; set; }
+        
+        // ===== PROPIEDADES PARA ROLES =====
+        public int rol_id { get; set; }
+        public string rol { get; set; }
+        public UserPermissions permissions { get; set; }
+
+        // Propiedades calculadas para facilitar el uso
+        public string NombreCompleto => $"{nombre} {apellido}";
+        public bool EsAdministrador => rol_id == 1;
+        public bool EsRecepcionista => rol_id == 72;
+        public bool EsMedico => rol_id == 70;
+        public bool EsPaciente => rol_id == 71;
+    }
+    // ===== CLASE PARA MANEJAR PERMISOS =====
+    public class UserPermissions
+    {
+        public string role { get; set; }
+        public int role_id { get; set; }
+        public Dictionary<string, bool> permissions { get; set; } = new Dictionary<string, bool>();
+
+        // Métodos helper para verificar permisos específicos
+        public bool PuedeRegistrarMedicos => GetPermission("registro_medico");
+        public bool PuedeConsultarMedicos => GetPermission("consulta_medicos");
+        public bool PuedeGestionarHorarios => GetPermission("gestion_horarios");
+        public bool PuedeCrearCitas => GetPermission("crear_citas");
+        public bool PuedeBuscarPacientes => GetPermission("buscar_pacientes");
+        public bool PuedeRegistrarPacientes => GetPermission("registrar_pacientes");
+        public bool PuedeVerHorariosMedicos => GetPermission("ver_horarios_medicos");
+        public bool PuedeVerTodasCitas => GetPermission("ver_todas_citas");
+        public bool PuedeVerMisCitas => GetPermission("ver_mis_citas");
+        public bool TieneAccesoCompleto => GetPermission("todas_vistas");
+
+        private bool GetPermission(string permissionKey)
+        {
+            return permissions?.ContainsKey(permissionKey) == true && permissions[permissionKey];
+        }
     }
 }

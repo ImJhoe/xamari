@@ -3,55 +3,161 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
 using CitasMedicasApp.Models;
+using CitasMedicasApp.Services;
 
 namespace CitasMedicasApp.Views
 {
+    [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class VerCitasPage : ContentPage
     {
         private readonly ApiService _apiService;
         private List<Cita> _todasCitas;
+        private List<Cita> _citasFiltradas;
+        private List<MedicoCompleto> _medicos;
         private List<Especialidad> _especialidades;
 
+        // Parámetros de filtro basados en rol
+        private readonly bool _filtrarPorMedico;
+        private readonly bool _soloHoy;
+        private readonly bool _soloMisCitas;
+
+        // Constructor por defecto
         public VerCitasPage()
         {
             InitializeComponent();
             _apiService = new ApiService();
-            _todasCitas = new List<Cita>();
+            ConfigurarSegunRol();
+            LoadInitialData();
+        }
+
+        // Constructor para médico con filtros específicos
+        public VerCitasPage(bool filtrarPorMedico = false, bool soloHoy = false)
+        {
+            InitializeComponent();
+            _apiService = new ApiService();
+            _filtrarPorMedico = filtrarPorMedico;
+            _soloHoy = soloHoy;
+            ConfigurarSegunRol();
+            LoadInitialData();
+        }
+
+        // Constructor para paciente
+        public VerCitasPage(bool soloMisCitas = false)
+        {
+            InitializeComponent();
+            _apiService = new ApiService();
+            _soloMisCitas = soloMisCitas;
+            ConfigurarSegunRol();
+            LoadInitialData();
+        }
+
+        private void ConfigurarSegunRol()
+        {
+            // Configurar según el rol del usuario
+            if (UserSessionManager.IsAdmin)
+            {
+                ConfigurarParaAdmin();
+            }
+            else if (UserSessionManager.IsRecepcionista)
+            {
+                ConfigurarParaRecepcionista();
+            }
+            else if (UserSessionManager.IsMedico)
+            {
+                ConfigurarParaMedico();
+            }
+            else if (UserSessionManager.IsPaciente)
+            {
+                ConfigurarParaPaciente();
+            }
 
             // Configurar fechas por defecto
-            FechaDesdeDate.Date = DateTime.Now;
-            FechaHastaDate.Date = DateTime.Now.AddDays(7);
+            var hoy = DateTime.Now;
+            FechaDesdeDate.Date = _soloHoy ? hoy : hoy.AddDays(-30);
+            FechaHastaDate.Date = _soloHoy ? hoy : hoy.AddDays(30);
+
+            // Configurar estados
+            EstadoFiltro.ItemsSource = new List<string>
+            {
+                "Todos", "Programada", "Confirmada", "Completada", "Cancelada"
+            };
+            EstadoFiltro.SelectedItem = "Todos";
         }
 
-        protected override void OnAppearing()
+        private void ConfigurarParaAdmin()
         {
-            base.OnAppearing();
-            CargarDatos();
+            HeaderFrame.BackgroundColor = Color.FromHex("#2c3e50");
+            HeaderIcon.Text = "👨‍💼";
+            HeaderTitulo.Text = "TODAS LAS CITAS - ADMIN";
+            HeaderSubtitulo.Text = "Vista completa del sistema";
+
+            // Mostrar todos los filtros
+            EspecialidadFiltroStack.IsVisible = true;
+            MedicoFiltroStack.IsVisible = true;
+            FiltrosToolbar.IsVisible = true;
         }
 
-        private async void CargarDatos()
+        private void ConfigurarParaRecepcionista()
+        {
+            HeaderFrame.BackgroundColor = Color.FromHex("#e67e22");
+            HeaderIcon.Text = "🏥";
+            HeaderTitulo.Text = "GESTIÓN DE CITAS";
+            HeaderSubtitulo.Text = "Puntos 3-7 Lista de Cotejo";
+
+            // Mostrar filtros de especialidad
+            EspecialidadFiltroStack.IsVisible = true;
+            MedicoFiltroStack.IsVisible = false;
+            FiltrosToolbar.IsVisible = true;
+        }
+
+        private void ConfigurarParaMedico()
+        {
+            HeaderFrame.BackgroundColor = Color.FromHex("#3498db");
+            HeaderIcon.Text = "👨‍⚕️";
+            HeaderTitulo.Text = _soloHoy ? "MIS CITAS DE HOY" : "MIS CITAS";
+            HeaderSubtitulo.Text = $"Dr. {UserSessionManager.GetUserDisplayName()}";
+
+            // Solo filtros básicos para médico
+            EspecialidadFiltroStack.IsVisible = false;
+            MedicoFiltroStack.IsVisible = false;
+            FiltrosToolbar.IsVisible = true;
+        }
+
+        private void ConfigurarParaPaciente()
+        {
+            HeaderFrame.BackgroundColor = Color.FromHex("#27ae60");
+            HeaderIcon.Text = "🧑‍🦱";
+            HeaderTitulo.Text = "MIS CITAS MÉDICAS";
+            HeaderSubtitulo.Text = UserSessionManager.GetUserDisplayName();
+
+            // Sin filtros para paciente
+            EspecialidadFiltroStack.IsVisible = false;
+            MedicoFiltroStack.IsVisible = false;
+            FiltrosToolbar.IsVisible = false;
+            FiltrosFrame.IsVisible = false;
+        }
+
+        private async void LoadInitialData()
         {
             ShowLoading(true);
 
             try
             {
-                // Cargar especialidades para filtros
-                var responseEspecialidades = await _apiService.ObtenerEspecialidadesAsync();
-                if (responseEspecialidades.success && responseEspecialidades.data != null)
+                // Cargar filtros si es necesario
+                if (UserSessionManager.IsAdmin || UserSessionManager.IsRecepcionista)
                 {
-                    _especialidades = responseEspecialidades.data;
-                    var especialidadesConTodas = new List<string> { "Todas" };
-                    especialidadesConTodas.AddRange(_especialidades.Select(e => e.nombre_especialidad));
-                    EspecialidadFiltro.ItemsSource = especialidadesConTodas;
+                    await LoadFiltros();
                 }
 
                 // Cargar citas
-                await CargarCitas();
+                await LoadCitas();
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Error al cargar datos: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"Error cargando datos: {ex.Message}");
+                await DisplayAlert("❌ Error", "Error cargando las citas", "OK");
             }
             finally
             {
@@ -59,220 +165,401 @@ namespace CitasMedicasApp.Views
             }
         }
 
-        private async Task CargarCitas()
+        private async Task LoadFiltros()
         {
             try
             {
-                var response = await _apiService.ObtenerCitasAsync();
-
-                if (response.success && response.data != null)
+                // Cargar especialidades
+                if (EspecialidadFiltroStack.IsVisible)
                 {
-                    _todasCitas = response.data;
-                    MostrarCitas(_todasCitas);
-                    MostrarResumen();
+                    var especialidadesResponse = await _apiService.ObtenerEspecialidadesAsync();
+                    if (especialidadesResponse.success && especialidadesResponse.data != null)
+                    {
+                        _especialidades = especialidadesResponse.data;
+                        var especialidadesNombres = new List<string> { "Todas" };
+                        especialidadesNombres.AddRange(_especialidades.Select(e => e.nombre_especialidad));
+                        EspecialidadFiltro.ItemsSource = especialidadesNombres;
+                        EspecialidadFiltro.SelectedItem = "Todas";
+                    }
                 }
-                else
+
+                // Cargar médicos (solo para admin)
+                if (MedicoFiltroStack.IsVisible)
                 {
-                    NoDataLabel.IsVisible = true;
-                    ResumenFrame.IsVisible = false;
+                    var medicosResponse = await _apiService.ObtenerTodosMedicosAsync();
+                    if (medicosResponse.success && medicosResponse.data != null)
+                    {
+                        _medicos = medicosResponse.data;
+                        var medicosNombres = new List<string> { "Todos" };
+                        medicosNombres.AddRange(_medicos.Select(m => m.NombreCompleto));
+                        MedicoFiltro.ItemsSource = medicosNombres;
+                        MedicoFiltro.SelectedItem = "Todos";
+                    }
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Error al cargar citas: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"Error cargando filtros: {ex.Message}");
+            }
+        }
+
+        private async Task LoadCitas()
+        {
+            try
+            {
+                ApiResponse<List<Cita>> response;
+
+                if (UserSessionManager.IsPaciente || _soloMisCitas)
+                {
+                    // Paciente: solo sus citas
+                    var idPaciente = UserSessionManager.CurrentUser?.id ?? 0;
+                    response = await _apiService.ConsultarCitasAsync(idPaciente);
+                }
+                else if (UserSessionManager.IsMedico || _filtrarPorMedico)
+                {
+                    // Médico: solo sus citas
+                    var idMedico = UserSessionManager.CurrentUser?.id ?? 0;
+                    response = await _apiService.ConsultarCitasAsync(idMedico: idMedico);
+                }
+                else
+                {
+                    // Admin/Recepcionista: todas las citas
+                    response = await _apiService.ConsultarCitasAsync();
+                }
+
+                if (response.success && response.data != null)
+                {
+                    _todasCitas = response.data;
+
+                    // Aplicar filtro de fecha si es necesario
+                    if (_soloHoy)
+                    {
+                        var hoy = DateTime.Now.Date;
+                        _todasCitas = _todasCitas.Where(c =>
+                        {
+                            var fechaCita = c.fecha_cita != default(DateTime) ? c.fecha_cita.Date : c.fecha_hora.Date;
+                            return fechaCita == hoy;
+                        }).ToList();
+                    }
+
+                    AplicarFiltrosYMostrarCitas();
+                }
+                else
+                {
+                    MostrarSinCitas("No se pudieron cargar las citas");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error cargando citas: {ex.Message}");
+                MostrarSinCitas("Error cargando las citas");
+            }
+        }
+
+        private void AplicarFiltrosYMostrarCitas()
+        {
+            if (_todasCitas == null || !_todasCitas.Any())
+            {
+                MostrarSinCitas();
+                return;
+            }
+
+            _citasFiltradas = _todasCitas.Where(c =>
+            {
+                // Filtro por fecha
+                var fechaCita = c.fecha_cita != default(DateTime) ? c.fecha_cita.Date : c.fecha_hora.Date;
+                if (fechaCita < FechaDesdeDate.Date || fechaCita > FechaHastaDate.Date)
+                    return false;
+
+                // Filtro por especialidad
+                if (EspecialidadFiltroStack.IsVisible)
+                {
+                    var especialidadSeleccionada = (string)EspecialidadFiltro.SelectedItem;
+                    if (!string.IsNullOrEmpty(especialidadSeleccionada) && especialidadSeleccionada != "Todas")
+                    {
+                        var especialidadCita = c.especialidad ?? c.nombre_especialidad ?? "";
+                        if (especialidadCita != especialidadSeleccionada)
+                            return false;
+                    }
+                }
+
+                // Filtro por estado
+                var estadoSeleccionado = (string)EstadoFiltro.SelectedItem;
+                if (!string.IsNullOrEmpty(estadoSeleccionado) && estadoSeleccionado != "Todos")
+                {
+                    var estadoCita = c.estado ?? "Programada";
+                    if (estadoCita != estadoSeleccionado)
+                        return false;
+                }
+
+                // Filtro por médico (solo para admin)
+                if (MedicoFiltroStack.IsVisible)
+                {
+                    var medicoSeleccionado = (string)MedicoFiltro.SelectedItem;
+                    if (!string.IsNullOrEmpty(medicoSeleccionado) && medicoSeleccionado != "Todos")
+                    {
+                        var medicoCita = c.nombre_medico ?? "";
+                        if (medicoCita != medicoSeleccionado)
+                            return false;
+                    }
+                }
+
+                return true;
+            }).OrderByDescending(c => c.fecha_cita != default(DateTime) ? c.fecha_cita : c.fecha_hora).ToList();
+
+            if (_citasFiltradas.Any())
+            {
+                MostrarCitas(_citasFiltradas);
+                MostrarResumen(_citasFiltradas);
+            }
+            else
+            {
+                MostrarSinCitas("No se encontraron citas con los filtros aplicados");
             }
         }
 
         private void MostrarCitas(List<Cita> citas)
         {
-            // Limpiar contenedor
-            var citasParaMostrar = CitasStackLayout.Children.Where(c => c is Frame && ((Frame)c).ClassId == "cita-item").ToList();
-            foreach (var item in citasParaMostrar)
+            CitasStack.Children.Clear();
+            SinCitasFrame.IsVisible = false;
+
+            foreach (var cita in citas)
             {
-                CitasStackLayout.Children.Remove(item);
-            }
-
-            NoDataLabel.IsVisible = false;
-
-            if (citas == null || citas.Count == 0)
-            {
-                NoDataLabel.IsVisible = true;
-                return;
-            }
-
-            // Agrupar por fecha
-            var citasAgrupadas = citas.GroupBy(c => c.fecha_cita.Date).OrderBy(g => g.Key);
-
-            foreach (var grupo in citasAgrupadas)
-            {
-                // Header de fecha
-                var fechaHeader = new Label
-                {
-                    Text = $"📅 {grupo.Key:dddd, dd MMMM yyyy}",
-                    FontSize = 16,
-                    FontAttributes = FontAttributes.Bold,
-                    TextColor = Color.FromHex("#2c3e50"),
-                    Margin = new Thickness(0, 15, 0, 5)
-                };
-                CitasStackLayout.Children.Add(fechaHeader);
-
-                // Citas de esa fecha
-                foreach (var cita in grupo.OrderBy(c => c.hora_inicio))
-                {
-                    var citaFrame = CrearTarjetaCita(cita);
-                    CitasStackLayout.Children.Add(citaFrame);
-                }
+                var citaFrame = CrearCitaFrame(cita);
+                CitasStack.Children.Add(citaFrame);
             }
         }
 
-        private Frame CrearTarjetaCita(Cita cita)
+        private Frame CrearCitaFrame(Cita cita)
         {
+            var fechaCita = cita.fecha_cita != default(DateTime) ? cita.fecha_cita : cita.fecha_hora;
+            var estadoColor = ObtenerColorEstado(cita.estado ?? "Programada");
+
             var frame = new Frame
             {
                 BackgroundColor = Color.White,
                 HasShadow = true,
                 CornerRadius = 10,
-                Padding = 15,
                 Margin = new Thickness(0, 5),
-                ClassId = "cita-item"
-            };
-
-            var mainStack = new StackLayout { Spacing = 8 };
-
-            // Header con hora y estado
-            var headerStack = new StackLayout
-            {
-                Orientation = StackOrientation.Horizontal,
-                Children =
-        {
-            new Label
-            {
-                Text = $"🕐 {cita.hora_formateada}",
-                FontSize = 16,
-                FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromHex("#2c3e50"),
-                VerticalOptions = LayoutOptions.Center
-            },
-            new Label
-            {
-                Text = ObtenerEmojiEstado(cita.estado_formateado) + " " + cita.estado_formateado,
-                FontSize = 14,
-                FontAttributes = FontAttributes.Bold,
-                TextColor = ObtenerColorEstado(cita.estado_formateado),
-                HorizontalOptions = LayoutOptions.EndAndExpand
-            }
-        }
-            };
-
-            // Información del paciente
-            var pacienteLabel = new Label
-            {
-                Text = $"👤 Paciente: {cita.nombre_paciente ?? "N/A"}",
-                FontSize = 14,
-                TextColor = Color.FromHex("#2c3e50")
-            };
-
-            // Información del médico
-            var medicoLabel = new Label
-            {
-                Text = $"👨‍⚕️ Dr(a). {cita.nombre_medico ?? "N/A"} - {cita.especialidad ?? cita.nombre_especialidad ?? "N/A"}",
-                FontSize = 14,
-                TextColor = Color.FromHex("#3498db")
-            };
-
-            // Motivo
-            var motivoLabel = new Label
-            {
-                Text = $"📋 Motivo: {cita.motivo ?? "No especificado"}",
-                FontSize = 13,
-                TextColor = Color.FromHex("#555")
-            };
-
-            // Tipo y sucursal
-            var tipoSucursalStack = new StackLayout
-            {
-                Orientation = StackOrientation.Horizontal,
-                Spacing = 15,
-                Children =
-        {
-            new Label
-            {
-                Text = $"📍 {cita.tipo_cita ?? cita.nombre_tipo ?? "Presencial"}",
-                FontSize = 12,
-                TextColor = Color.FromHex("#666")
-            },
-            new Label
-            {
-                Text = $"🏥 {cita.nombre_sucursal ?? "N/A"}",
-                FontSize = 12,
-                TextColor = Color.FromHex("#666")
-            }
-        }
-            };
-
-            mainStack.Children.Add(headerStack);
-            mainStack.Children.Add(pacienteLabel);
-            mainStack.Children.Add(medicoLabel);
-            mainStack.Children.Add(motivoLabel);
-            mainStack.Children.Add(tipoSucursalStack);
-
-            // Observaciones si existen
-            var observaciones = cita.observaciones ?? cita.notas;
-            if (!string.IsNullOrEmpty(observaciones))
-            {
-                var observacionesLabel = new Label
+                Content = new StackLayout
                 {
-                    Text = $"💭 Notas: {observaciones}",
-                    FontSize = 12,
-                    TextColor = Color.FromHex("#7f8c8d"),
-                    FontAttributes = FontAttributes.Italic
-                };
-                mainStack.Children.Add(observacionesLabel);
-            }
+                    Spacing = 10,
+                    Children =
+                    {
+                        // Header con fecha y estado
+                        new Grid
+                        {
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Auto }
+                            },
+                            Children =
+                            {
+                                new Label
+                                {
+                                    Text = $"📅 {fechaCita:dddd, dd/MM/yyyy} - {fechaCita:HH:mm}",
+                                    FontAttributes = FontAttributes.Bold,
+                                    FontSize = 16
+                                }.Apply(l => Grid.SetColumn(l, 0)),
 
-            frame.Content = mainStack;
+                                new Frame
+                                {
+                                    BackgroundColor = estadoColor,
+                                    CornerRadius = 12,
+                                    Padding = new Thickness(8, 4),
+                                    Content = new Label
+                                    {
+                                        Text = cita.estado ?? "Programada",
+                                        TextColor = Color.White,
+                                        FontSize = 10,
+                                        FontAttributes = FontAttributes.Bold
+                                    }
+                                }.Apply(f => Grid.SetColumn(f, 1))
+                            }
+                        },
+
+                        // Información del paciente (si no es paciente el que ve)
+                        !UserSessionManager.IsPaciente ? new Label
+                        {
+                            Text = $"👤 Paciente: {cita.nombre_paciente}",
+                            FontSize = 14,
+                            TextColor = Color.FromHex("#2c3e50")
+                        } : null,
+
+                        // Información del médico (si no es médico el que ve)
+                        !UserSessionManager.IsMedico ? new Label
+                        {
+                            Text = $"👨‍⚕️ Médico: {cita.nombre_medico}",
+                            FontSize = 14,
+                            TextColor = Color.FromHex("#2c3e50")
+                        } : null,
+
+                        // Especialidad y sucursal
+                        new Label
+                        {
+                            Text = $"🏥 {cita.nombre_especialidad} - {cita.nombre_sucursal}",
+                            FontSize = 12,
+                            TextColor = Color.FromHex("#7f8c8d")
+                        },
+
+                        // Motivo
+                        !string.IsNullOrEmpty(cita.motivo) ? new Label
+                        {
+                            Text = $"📝 Motivo: {cita.motivo}",
+                            FontSize = 12,
+                            TextColor = Color.FromHex("#555")
+                        } : null,
+
+                        // Botones de acción según rol
+                        CrearBotonesAccion(cita)
+                    }.Where(child => child != null).ToArray()
+                }
+            };
+
             return frame;
         }
 
-        private string ObtenerEmojiEstado(string estado)
+        private StackLayout CrearBotonesAccion(Cita cita)
         {
-            return estado.ToLower() switch
+            var buttonsStack = new StackLayout
             {
-                "pendiente" => "⏳",
-                "confirmada" => "✅",
-                "completada" => "✅",
-                "cancelada" => "❌",
-                _ => "📋"
+                Orientation = StackOrientation.Horizontal,
+                Spacing = 10
             };
+
+            var fechaCita = cita.fecha_cita != default(DateTime) ? cita.fecha_cita : cita.fecha_hora;
+            var puedeModificar = fechaCita > DateTime.Now.AddHours(2); // Solo si faltan más de 2 horas
+
+            if (UserSessionManager.IsAdmin || UserSessionManager.IsRecepcionista)
+            {
+                // Admin/Recepcionista pueden ver detalles y reagendar
+                buttonsStack.Children.Add(new Button
+                {
+                    Text = "👁️ Ver",
+                    BackgroundColor = Color.FromHex("#3498db"),
+                    TextColor = Color.White,
+                    FontSize = 10,
+                    CornerRadius = 15,
+                    Command = new Command(async () => await VerDetalleCita(cita))
+                });
+
+                if (puedeModificar && (cita.estado ?? "").ToLower() != "cancelada")
+                {
+                    buttonsStack.Children.Add(new Button
+                    {
+                        Text = "✏️ Editar",
+                        BackgroundColor = Color.FromHex("#27ae60"),
+                        TextColor = Color.White,
+                        FontSize = 10,
+                        CornerRadius = 15,
+                        Command = new Command(async () => await EditarCita(cita))
+                    });
+                }
+            }
+            else if (UserSessionManager.IsMedico)
+            {
+                // Médico puede ver detalles y atender
+                buttonsStack.Children.Add(new Button
+                {
+                    Text = "👁️ Ver",
+                    BackgroundColor = Color.FromHex("#3498db"),
+                    TextColor = Color.White,
+                    FontSize = 10,
+                    CornerRadius = 15,
+                    Command = new Command(async () => await VerDetalleCita(cita))
+                });
+
+                if (fechaCita.Date == DateTime.Now.Date && (cita.estado ?? "").ToLower() != "completada")
+                {
+                    buttonsStack.Children.Add(new Button
+                    {
+                        Text = "🩺 Atender",
+                        BackgroundColor = Color.FromHex("#27ae60"),
+                        TextColor = Color.White,
+                        FontSize = 10,
+                        CornerRadius = 15,
+                        Command = new Command(async () => await AtenderCita(cita))
+                    });
+                }
+            }
+            else if (UserSessionManager.IsPaciente)
+            {
+                // Paciente puede ver detalles y reagendar/cancelar
+                buttonsStack.Children.Add(new Button
+                {
+                    Text = "👁️ Ver",
+                    BackgroundColor = Color.FromHex("#3498db"),
+                    TextColor = Color.White,
+                    FontSize = 10,
+                    CornerRadius = 15,
+                    Command = new Command(async () => await VerDetalleCita(cita))
+                });
+
+                if (puedeModificar && (cita.estado ?? "").ToLower() != "cancelada")
+                {
+                    buttonsStack.Children.Add(new Button
+                    {
+                        Text = "❌ Cancelar",
+                        BackgroundColor = Color.FromHex("#e74c3c"),
+                        TextColor = Color.White,
+                        FontSize = 10,
+                        CornerRadius = 15,
+                        Command = new Command(async () => await CancelarCita(cita))
+                    });
+                }
+            }
+
+            return buttonsStack;
         }
 
         private Color ObtenerColorEstado(string estado)
         {
             return estado.ToLower() switch
             {
-                "pendiente" => Color.FromHex("#f39c12"),
+                "programada" => Color.FromHex("#f39c12"),
                 "confirmada" => Color.FromHex("#27ae60"),
-                "completada" => Color.FromHex("#2ecc71"),
+                "completada" => Color.FromHex("#3498db"),
                 "cancelada" => Color.FromHex("#e74c3c"),
-                _ => Color.FromHex("#7f8c8d")
+                _ => Color.FromHex("#95a5a6")
             };
         }
 
-        private void MostrarResumen()
+        private void MostrarSinCitas(string mensaje = null)
         {
-            if (_todasCitas == null || _todasCitas.Count == 0)
+            CitasStack.Children.Clear();
+            SinCitasFrame.IsVisible = true;
+            ResumenFrame.IsVisible = false;
+
+            if (!string.IsNullOrEmpty(mensaje))
             {
-                ResumenFrame.IsVisible = false;
-                return;
+                SinCitasTexto.Text = "NO HAY CITAS";
+                SinCitasDetalle.Text = mensaje;
             }
+            else
+            {
+                SinCitasTexto.Text = UserSessionManager.IsPaciente ? "NO TIENES CITAS" : "NO HAY CITAS DISPONIBLES";
+                SinCitasDetalle.Text = UserSessionManager.IsPaciente
+                    ? "Cuando tengas citas programadas aparecerán aquí."
+                    : "Pruebe ajustando los filtros de búsqueda.";
+            }
+        }
 
-            var totalCitas = _todasCitas.Count;
-            var citasPendientes = _todasCitas.Count(c => (c.estado ?? "Pendiente").ToLower() == "pendiente");
-            var citasCompletadas = _todasCitas.Count(c => (c.estado ?? "").ToLower() == "completada");
-            var citasCanceladas = _todasCitas.Count(c => (c.estado ?? "").ToLower() == "cancelada");
+        private void MostrarResumen(List<Cita> citas)
+        {
+            var totalCitas = citas.Count;
+            var citasPendientes = citas.Count(c => (c.estado ?? "Programada").ToLower() is "programada" or "confirmada");
+            var citasCompletadas = citas.Count(c => (c.estado ?? "").ToLower() == "completada");
+            var citasCanceladas = citas.Count(c => (c.estado ?? "").ToLower() == "cancelada");
 
-            ResumenDetalle.Text = $"Total: {totalCitas} | Pendientes: {citasPendientes} | Completadas: {citasCompletadas} | Canceladas: {citasCanceladas}";
+            ResumenDetalle.Text = $"📊 Total: {totalCitas} | ⏳ Pendientes: {citasPendientes} | ✅ Completadas: {citasCompletadas} | ❌ Canceladas: {citasCanceladas}";
             ResumenFrame.IsVisible = true;
+        }
+
+        // ============ EVENTOS ============
+        private async void OnRefreshClicked(object sender, EventArgs e)
+        {
+            await LoadCitas();
         }
 
         private void OnFiltrosClicked(object sender, EventArgs e)
@@ -280,73 +567,100 @@ namespace CitasMedicasApp.Views
             FiltrosFrame.IsVisible = !FiltrosFrame.IsVisible;
         }
 
-        private async void OnAplicarFiltrosClicked(object sender, EventArgs e)
+        private void OnAplicarFiltrosClicked(object sender, EventArgs e)
         {
+            AplicarFiltrosYMostrarCitas();
+            FiltrosFrame.IsVisible = false;
+        }
+
+        private void OnLimpiarFiltrosClicked(object sender, EventArgs e)
+        {
+            // Restaurar filtros por defecto
+            var hoy = DateTime.Now;
+            FechaDesdeDate.Date = _soloHoy ? hoy : hoy.AddDays(-30);
+            FechaHastaDate.Date = _soloHoy ? hoy : hoy.AddDays(30);
+
+            if (EspecialidadFiltro.ItemsSource != null)
+                EspecialidadFiltro.SelectedItem = "Todas";
+
+            EstadoFiltro.SelectedItem = "Todos";
+
+            if (MedicoFiltro.ItemsSource != null)
+                MedicoFiltro.SelectedItem = "Todos";
+
+            AplicarFiltrosYMostrarCitas();
+        }
+
+        // ============ ACCIONES DE CITAS ============
+        private async Task VerDetalleCita(Cita cita)
+        {
+            await Navigation.PushAsync(new DetalleCitaPage(cita));
+        }
+
+        private async Task EditarCita(Cita cita)
+        {
+            await Navigation.PushAsync(new CrearCitaPage(cita, esEdicion: true));
+        }
+
+        private async Task AtenderCita(Cita cita)
+        {
+            await DisplayAlert("🚧 En Desarrollo", "Funcionalidad de atención médica en desarrollo", "OK");
+            // TODO: await Navigation.PushAsync(new AtencionMedicaPage(cita));
+        }
+
+        private async Task CancelarCita(Cita cita)
+        {
+            bool confirmar = await DisplayAlert(
+                "Cancelar Cita",
+                $"¿Está seguro que desea cancelar la cita del {cita.fecha_cita:dd/MM/yyyy} a las {cita.fecha_cita:HH:mm}?\n\n⚠️ Esta acción no se puede deshacer.",
+                "Sí, cancelar", "No");
+
+            if (!confirmar) return;
+
             ShowLoading(true);
 
             try
             {
-                var citasFiltradas = _todasCitas.Where(c =>
+                var response = await _apiService.CancelarCitaAsync(cita.id_cita);
+
+                if (response.success)
                 {
-                    // Filtro por fecha
-                    var fechaCita = c.fecha_cita != default(DateTime) ? c.fecha_cita.Date : c.fecha_hora.Date;
-                    if (fechaCita < FechaDesdeDate.Date || fechaCita > FechaHastaDate.Date)
-                        return false;
-
-                    // Filtro por especialidad
-                    var especialidadSeleccionada = (string)EspecialidadFiltro.SelectedItem;
-                    if (!string.IsNullOrEmpty(especialidadSeleccionada) &&
-                        especialidadSeleccionada != "Todas")
-                    {
-                        var especialidadCita = c.especialidad ?? c.nombre_especialidad ?? "";
-                        if (especialidadCita != especialidadSeleccionada)
-                            return false;
-                    }
-
-                    // Filtro por estado
-                    var estadoSeleccionado = (string)EstadoFiltro.SelectedItem;
-                    if (!string.IsNullOrEmpty(estadoSeleccionado) &&
-                        estadoSeleccionado != "Todos")
-                    {
-                        var estadoCita = c.estado ?? "Pendiente";
-                        if (estadoCita != estadoSeleccionado)
-                            return false;
-                    }
-
-                    return true;
-                }).ToList();
-
-                MostrarCitas(citasFiltradas);
-                FiltrosFrame.IsVisible = false;
+                    await DisplayAlert("✅ Éxito", "Cita cancelada exitosamente", "OK");
+                    await LoadCitas(); // Recargar datos
+                }
+                else
+                {
+                    await DisplayAlert("❌ Error", response.message ?? "No se pudo cancelar la cita", "OK");
+                }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Error al aplicar filtros: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"Error cancelando cita: {ex.Message}");
+                await DisplayAlert("❌ Error", "Error al cancelar la cita", "OK");
             }
             finally
             {
                 ShowLoading(false);
             }
         }
-        private void OnLimpiarFiltrosClicked(object sender, EventArgs e)
-        {
-            FechaDesdeDate.Date = DateTime.Now;
-            FechaHastaDate.Date = DateTime.Now.AddDays(7);
-            EspecialidadFiltro.SelectedItem = null;
-            EstadoFiltro.SelectedItem = null;
-            MostrarCitas(_todasCitas);
-            FiltrosFrame.IsVisible = false;
-        }
-
-        private void OnRefreshClicked(object sender, EventArgs e)
-        {
-            CargarDatos();
-        }
 
         private void ShowLoading(bool isLoading)
         {
-            LoadingIndicator.IsVisible = isLoading;
-            LoadingIndicator.IsRunning = isLoading;
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                LoadingStack.IsVisible = isLoading;
+                LoadingIndicator.IsRunning = isLoading;
+            });
         }
+    }
+}
+
+// ============ EXTENSION HELPER ============
+public static class ViewExtensions
+{
+    public static T Apply<T>(this T view, System.Action<T> action) where T : View
+    {
+        action(view);
+        return view;
     }
 }

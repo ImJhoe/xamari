@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.MedicoMenuPage"
+             Title="Menú Médico">
+
+    <ContentPage.Content>
+        <ScrollView BackgroundColor="#f8f9fa">
+            <StackLayout Padding="20" Spacing="15">
+
+                <!-- Header del usuario -->
+                <Frame BackgroundColor="#3498db" HasShadow="True" CornerRadius="10">
+                    <StackLayout Orientation="Horizontal" Spacing="15">
+                        <Label Text="👨‍⚕️" FontSize="30"/>
+                        <StackLayout VerticalOptions="CenterAndExpand">
+                            <Label x:Name="WelcomeLabel" 
+                                   Text="Bienvenido, Doctor" 
+                                   TextColor="White" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold"/>
+                            <Label x:Name="RoleLabel" 
+                                   Text="Gestión de consultas y horarios" 
+                                   TextColor="#ecf0f1" 
+                                   FontSize="14"/>
+                        </StackLayout>
+                        <Button Text="🚪" 
+                                BackgroundColor="Transparent"
+                                TextColor="#e74c3c"
+                                FontSize="20"
+                                Clicked="OnLogoutClicked"
+                                HorizontalOptions="End"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Punto 2: Consultar médico y horarios -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="👤 PUNTO 2: MI INFORMACIÓN" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#3498db"/>
+                        <Label Text="Pantalla para consultar médico y su horario asignado y puede actualizar" 
+                               FontSize="12" 
+                               TextColor="#7f8c8d"/>
+
+                        <Button x:Name="MiPerfilButton"
+                                Text="👤 VER MI PERFIL"
+                                BackgroundColor="#3498db"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnMiPerfilClicked"/>
+
+                        <Button x:Name="MisHorariosButton"
+                                Text="🕒 GESTIONAR MIS HORARIOS"
+                                BackgroundColor="#27ae60"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnMisHorariosClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Ver mis citas asignadas -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="📅 MIS CONSULTAS" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#e67e22"/>
+
+                        <Button x:Name="MisCitasHoyButton"
+                                Text="📋 MIS CITAS DE HOY"
+                                BackgroundColor="#e67e22"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnMisCitasHoyClicked"/>
+
+                        <Button x:Name="MisCitasSemanaButton"
+                                Text="📅 MIS CITAS DE LA SEMANA"
+                                BackgroundColor="#9b59b6"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnMisCitasSemanaClicked"/>
+
+                        <Button x:Name="HistorialPacientesButton"
+                                Text="📋 HISTORIAL DE PACIENTES"
+                                BackgroundColor="#1abc9c"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnHistorialPacientesClicked"/>
+                    </StackLayout>
+                </Frame>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

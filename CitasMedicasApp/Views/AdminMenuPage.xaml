@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.AdminMenuPage"
+             Title="Menú Administrador">
+
+    <ContentPage.Content>
+        <ScrollView BackgroundColor="#f8f9fa">
+            <StackLayout Padding="20" Spacing="15">
+
+                <!-- Header del usuario -->
+                <Frame BackgroundColor="#2c3e50" HasShadow="True" CornerRadius="10">
+                    <StackLayout Orientation="Horizontal" Spacing="15">
+                        <Label Text="👨‍💼" FontSize="30"/>
+                        <StackLayout VerticalOptions="CenterAndExpand">
+                            <Label x:Name="WelcomeLabel" 
+                                   Text="Bienvenido, Administrador" 
+                                   TextColor="White" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold"/>
+                            <Label x:Name="RoleLabel" 
+                                   Text="Acceso completo al sistema" 
+                                   TextColor="#bdc3c7" 
+                                   FontSize="14"/>
+                        </StackLayout>
+                        <Button Text="🚪" 
+                                BackgroundColor="Transparent"
+                                TextColor="#e74c3c"
+                                FontSize="20"
+                                Clicked="OnLogoutClicked"
+                                HorizontalOptions="End"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Sección 1: Gestión de Médicos (Puntos 1 y 2) -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="👨‍⚕️ GESTIÓN DE MÉDICOS" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#2c3e50"/>
+
+                        <Button x:Name="RegistrarMedicoButton"
+                                Text="📝 REGISTRAR MÉDICO"
+                                BackgroundColor="#27ae60"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnRegistrarMedicoClicked"/>
+
+                        <Button x:Name="ConsultarMedicosButton"
+                                Text="🔍 CONSULTAR MÉDICOS Y HORARIOS"
+                                BackgroundColor="#3498db"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnConsultarMedicosClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Sección 2: Gestión de Citas -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="📅 GESTIÓN DE CITAS" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#2c3e50"/>
+
+                        <Button x:Name="CrearCitaButton"
+                                Text="➕ CREAR NUEVA CITA"
+                                BackgroundColor="#e67e22"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnCrearCitaClicked"/>
+
+                        <Button x:Name="VerTodasCitasButton"
+                                Text="📋 VER TODAS LAS CITAS"
+                                BackgroundColor="#9b59b6"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnVerTodasCitasClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Sección 3: Gestión de Pacientes -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="🧑‍🦱 GESTIÓN DE PACIENTES" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#2c3e50"/>
+
+                        <Button x:Name="RegistrarPacienteButton"
+                                Text="👤 REGISTRAR PACIENTE"
+                                BackgroundColor="#1abc9c"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnRegistrarPacienteClicked"/>
+
+                        <Button x:Name="ConsultarPacientesButton"
+                                Text="🔍 CONSULTAR PACIENTES"
+                                BackgroundColor="#34495e"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnConsultarPacientesClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Sección 4: Configuración del Sistema -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="⚙️ CONFIGURACIÓN" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#2c3e50"/>
+
+                        <Button x:Name="GestionEspecialidadesButton"
+                                Text="🏥 GESTIÓN DE ESPECIALIDADES"
+                                BackgroundColor="#95a5a6"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnGestionEspecialidadesClicked"/>
+
+                        <Button x:Name="GestionSucursalesButton"
+                                Text="🏢 GESTIÓN DE SUCURSALES"
+                                BackgroundColor="#7f8c8d"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnGestionSucursalesClicked"/>
+                    </StackLayout>
+                </Frame>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

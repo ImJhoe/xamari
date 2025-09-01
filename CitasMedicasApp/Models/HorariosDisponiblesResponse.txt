@@ -1,0 +1,51 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace CitasMedicasApp.Models
+{
+    public class HorariosDisponiblesResponse
+    {
+        public DateTime fecha { get; set; }
+        public string nombre_medico { get; set; }
+        public string especialidad { get; set; }
+        public string sucursal { get; set; }
+        public int duracion_cita_minutos { get; set; }
+        public List<HorarioDisponible> horarios_disponibles { get; set; } = new List<HorarioDisponible>();
+        public int total_slots { get; set; }
+        public string mensaje { get; set; }
+    }
+
+    public class HorarioMedico
+    {
+        public int id_horario { get; set; }
+        public int id_medico { get; set; }
+        public int id_sucursal { get; set; }
+        public int dia_semana { get; set; }
+        public TimeSpan hora_inicio { get; set; }
+        public TimeSpan hora_fin { get; set; }
+        public int duracion_consulta { get; set; }
+        public bool disponible { get; set; }
+        public string observaciones { get; set; }
+        public DateTime fecha_creacion { get; set; }
+
+        // Información adicional para consultas
+        public string nombre_medico { get; set; }
+        public string nombre_sucursal { get; set; }
+        public string especialidad { get; set; }
+    }
+
+    public class HorarioDisponible
+    {
+        public int IdHorario { get; set; }
+        public int IdMedico { get; set; }
+        public string NombreMedico { get; set; }
+        public TimeSpan HoraInicio { get; set; }
+        public TimeSpan HoraFin { get; set; }
+        public DateTime Fecha { get; set; }
+        public bool EstaDisponible { get; set; }
+        public string HorarioTexto { get; set; }
+        public string EstadoTexto { get; set; }
+    }
+
+}

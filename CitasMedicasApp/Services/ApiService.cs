@@ -19,18 +19,14 @@ public class ApiService
         _httpClient.Timeout = TimeSpan.FromSeconds(30);
     }
 
-    // ============ AUTENTICACIÓN ============
-    // Nota: No hay endpoint de login en tu API, necesitarás implementarlo
-    // Por ahora simulo una respuesta exitosa para pruebas
-    // ============ AUTENTICACIÓN REAL ============
-    // ============ AUTENTICACIÓN REAL - SIN DYNAMIC ============
+    // ============ AUTENTICACIÓN CON ROLES ============
     public async Task<ApiResponse<Usuario>> LoginAsync(string email, string password)
     {
         try
         {
             var data = new
             {
-                username = email,  // Tu backend usa 'username', no 'email'
+                username = email,
                 password = password
             };
 
@@ -40,9 +36,10 @@ public class ApiService
             var response = await _httpClient.PostAsync($"{_baseUrl}/auth/login", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
+            System.Diagnostics.Debug.WriteLine($"Login Response: {responseContent}");
+
             if (response.IsSuccessStatusCode)
             {
-                // ✅ USANDO JsonConvert en lugar de dynamic
                 var loginResponse = JsonConvert.DeserializeObject<LoginResponse>(responseContent);
 
                 if (loginResponse != null && loginResponse.success)
@@ -59,6 +56,9 @@ public class ApiService
                             email = loginResponse.data.user.correo,
                             username = loginResponse.data.user.username,
                             tipo_usuario = loginResponse.data.user.rol,
+                            rol = loginResponse.data.user.rol,           // ✅ NUEVO
+                            rol_id = loginResponse.data.user.rol_id,     // ✅ NUEVO
+                            permissions = loginResponse.data.permissions, // ✅ NUEVO
                             token = loginResponse.data.token
                         }
                     };
@@ -81,36 +81,35 @@ public class ApiService
                 };
             }
         }
-        catch (HttpRequestException)
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"Error en LoginAsync: {ex.Message}");
             return new ApiResponse<Usuario>
             {
                 success = false,
-                message = "No se pudo conectar con el servidor. Verifique su conexión."
+                message = $"Error de conexión: {ex.Message}"
             };
         }
-        catch (TaskCanceledException)
+    }
+    // ============ NUEVOS MÉTODOS PARA ROLES ============
+    public async Task<ApiResponse<UserPermissions>> GetRolePermissionsAsync(int roleId, string token)
+    {
+        try
         {
-            return new ApiResponse<Usuario>
-            {
-                success = false,
-                message = "La solicitud tardó demasiado. Intente nuevamente."
-            };
-        }
-        catch (JsonException)
-        {
-            return new ApiResponse<Usuario>
-            {
-                success = false,
-                message = "Error al procesar la respuesta del servidor."
-            };
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+
+            var response = await _httpClient.GetAsync($"{_baseUrl}/api/roles/{roleId}/permissions");
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<ApiResponse<UserPermissions>>(responseContent);
         }
         catch (Exception ex)
         {
-            return new ApiResponse<Usuario>
+            return new ApiResponse<UserPermissions>
             {
                 success = false,
-                message = $"Error inesperado: {ex.Message}"
+                message = $"Error obteniendo permisos: {ex.Message}"
             };
         }
     }
@@ -226,21 +225,32 @@ public class ApiService
     }
 
     // ============ PACIENTES ============
-    public async Task<ApiResponse<PacienteCompleto>> BuscarPacientePorCedulaAsync(string cedula)
+    public async Task<ApiResponse<Usuario>> BuscarPacientePorCedulaAsync(string cedula)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"{_baseUrl}/api/pacientes/{cedula}");
+            var response = await _httpClient.GetAsync($"{_baseUrl}/api/pacientes/cedula/{cedula}");
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<ApiResponse<PacienteCompleto>>(responseContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiResponse<Usuario>>(responseContent);
+            }
+            else
+            {
+                return new ApiResponse<Usuario>
+                {
+                    success = false,
+                    message = "Paciente no encontrado"
+                };
+            }
         }
         catch (Exception ex)
         {
-            return new ApiResponse<PacienteCompleto>
+            return new ApiResponse<Usuario>
             {
                 success = false,
-                message = $"Error de conexión: {ex.Message}"
+                message = $"Error buscando paciente: {ex.Message}"
             };
         }
     }
@@ -259,7 +269,8 @@ public class ApiService
                 password = paciente.cedula,
                 id_rol = 71,
                 telefono = paciente.telefono,
-                fecha_nacimiento = paciente.fecha_nacimiento.ToString("yyyy-MM-dd"),
+                // ✅ CORRECTO:
+                fecha_nacimiento = paciente.fecha_nacimiento.ToString("yyyy-MM-dd") ?? "",
                 tipo_sangre = paciente.tipo_sangre,
                 alergias = paciente.alergias,
                 antecedentes_medicos = paciente.antecedentes_medicos,
@@ -334,32 +345,44 @@ public class ApiService
         }
     }
 
-    public async Task<ApiResponse<List<string>>> ObtenerHorariosDisponiblesAsync(int idMedico, int idSucursal, DateTime fecha)
+    // ============ HORARIOS - VERSIONES CORREGIDAS ============
+    public async Task<ApiResponse<List<HorarioMedico>>> ObtenerHorariosDisponiblesAsync(int idMedico, DateTime fecha, int idSucursal)
     {
         try
         {
-            var fechaStr = fecha.ToString("yyyy-MM-dd");
-            var response = await _httpClient.GetAsync($"{_baseUrl}/api/horarios/medico/{idMedico}/disponibles?fecha={fechaStr}&sucursal={idSucursal}");
+            var fechaStr = fecha.ToString("yyyy-MM-dd"); // ✅ CORREGIDO: Sin argumentos extra
+            var response = await _httpClient.GetAsync($"{_baseUrl}/api/horarios/medico/{idMedico}/disponibles?fecha={fechaStr}&id_sucursal={idSucursal}");
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<ApiResponse<List<string>>>(responseContent);
+            return JsonConvert.DeserializeObject<ApiResponse<List<HorarioMedico>>>(responseContent);
         }
         catch (Exception ex)
         {
-            return new ApiResponse<List<string>>
+            return new ApiResponse<List<HorarioMedico>>
             {
                 success = false,
-                message = $"Error de conexión: {ex.Message}"
+                message = $"Error obteniendo horarios disponibles: {ex.Message}"
             };
         }
     }
 
     // ============ CITAS ============
-    public async Task<ApiResponse<Cita>> CrearCitaAsync(CitaCreacion cita)
+    public async Task<ApiResponse<Cita>> CrearCitaAsync(Cita cita)
     {
         try
         {
-            var json = JsonConvert.SerializeObject(cita);
+            var data = new
+            {
+                id_paciente = cita.id_paciente,
+                id_medico = cita.id_medico,
+                id_sucursal = cita.id_sucursal,
+                fecha_hora = cita.fecha_hora.ToString("yyyy-MM-dd HH:mm:ss"), // ✅ CORREGIDO: Sin argumentos en ToString()
+                motivo = cita.motivo,
+                tipo_cita = cita.tipo_cita,
+                cedula_paciente = cita.cedula_paciente
+            };
+
+            var json = JsonConvert.SerializeObject(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync($"{_baseUrl}/api/citas", content);
@@ -372,7 +395,67 @@ public class ApiService
             return new ApiResponse<Cita>
             {
                 success = false,
-                message = $"Error de conexión: {ex.Message}"
+                message = $"Error creando cita: {ex.Message}"
+            };
+        }
+    }
+    // ✅ CORREGIDO: ConsultarCitasAsync con tipos anónimos apropiados
+    public async Task<ApiResponse<List<Cita>>> ConsultarCitasAsync(int? idPaciente = null, int? idMedico = null)
+    {
+        try
+        {
+            object data; // ✅ CAMBIAR a object en lugar de anonymous type vacío
+
+            if (idPaciente.HasValue)
+            {
+                data = new { id_paciente = idPaciente.Value };
+            }
+            else if (idMedico.HasValue)
+            {
+                data = new { id_medico = idMedico.Value };
+            }
+            else
+            {
+                data = new { }; // ✅ Objeto vacío apropiado
+            }
+
+            var json = JsonConvert.SerializeObject(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{_baseUrl}/api/citas/consultar", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<ApiResponse<List<Cita>>>(responseContent);
+        }
+        catch (Exception ex)
+        {
+            return new ApiResponse<List<Cita>>
+            {
+                success = false,
+                message = $"Error consultando citas: {ex.Message}"
+            };
+        }
+    }
+
+    public async Task<ApiResponse<bool>> CancelarCitaAsync(int idCita)
+    {
+        try
+        {
+            var data = new { estado = "Cancelada" };
+            var json = JsonConvert.SerializeObject(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PutAsync($"{_baseUrl}/api/citas/{idCita}", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<ApiResponse<bool>>(responseContent);
+        }
+        catch (Exception ex)
+        {
+            return new ApiResponse<bool>
+            {
+                success = false,
+                message = $"Error cancelando cita: {ex.Message}"
             };
         }
     }
@@ -539,7 +622,7 @@ public class ApiService
         }
     }
 
-    // ============ MÉTODO INDIVIDUAL PARA ASIGNAR HORARIO ============
+    // ============ MÉTODO INDIVIDUAL PARA ASIGNAR HORARIO - CORREGIDO ============
     public async Task<ApiResponse<object>> AsignarHorarioIndividualAsync(HorarioMedico horario)
     {
         try
@@ -548,10 +631,10 @@ public class ApiService
             {
                 id_medico = horario.id_medico,
                 id_sucursal = horario.id_sucursal,
-                dia_semana = int.Parse(horario.dia_semana), // Convertir a número 
-                hora_inicio = horario.hora_inicio + ":00", // Agregar segundos
-                hora_fin = horario.hora_fin + ":00", // Agregar segundos
-                duracion_cita = horario.duracion_cita
+                dia_semana = horario.dia_semana, // Ya es int, no convertir
+                hora_inicio = horario.hora_inicio.ToString(@"hh\:mm\:ss"), // Formato correcto
+                hora_fin = horario.hora_fin.ToString(@"hh\:mm\:ss"), // Formato correcto
+                duracion_consulta = horario.duracion_consulta // CAMBIAR de duracion_cita a duracion_consulta
             };
 
             var json = JsonConvert.SerializeObject(data);
@@ -571,4 +654,125 @@ public class ApiService
             };
         }
     }
+    public async Task<ApiResponse<Paciente>> ObtenerPacienteAsync(int idPaciente)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{_baseUrl}/api/pacientes/{idPaciente}");
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<ApiResponse<Paciente>>(responseContent);
+        }
+        catch (Exception ex)
+        {
+            return new ApiResponse<Paciente>
+            {
+                success = false,
+                message = $"Error obteniendo paciente: {ex.Message}"
+            };
+        }
+    }
+    public async Task<ApiResponse<List<HorarioMedico>>> ObtenerHorariosMedicoAsync(int idMedico)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{_baseUrl}/api/horarios/medico/{idMedico}");
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<ApiResponse<List<HorarioMedico>>>(responseContent);
+        }
+        catch (Exception ex)
+        {
+            return new ApiResponse<List<HorarioMedico>>
+            {
+                success = false,
+                message = $"Error obteniendo horarios: {ex.Message}"
+            };
+        }
+    }
+    // ✅ CORREGIDO: CrearHorarioMedicoAsync - ajustar propiedades del HorarioMedico
+    public async Task<ApiResponse<HorarioMedico>> CrearHorarioMedicoAsync(HorarioMedico horario)
+    {
+        try
+        {
+            var data = new
+            {
+                id_medico = horario.id_medico,
+                id_sucursal = horario.id_sucursal,
+                dia_semana = horario.dia_semana,
+                hora_inicio = horario.hora_inicio.ToString(@"hh\:mm\:ss"), // ✅ CORREGIDO: Formato correcto
+                hora_fin = horario.hora_fin.ToString(@"hh\:mm\:ss"),       // ✅ CORREGIDO: Formato correcto
+                duracion_consulta = horario.duracion_consulta,             // ✅ USAR duracion_consulta
+                observaciones = horario.observaciones
+            };
+
+            var json = JsonConvert.SerializeObject(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{_baseUrl}/api/horarios", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<ApiResponse<HorarioMedico>>(responseContent);
+        }
+        catch (Exception ex)
+        {
+            return new ApiResponse<HorarioMedico>
+            {
+                success = false,
+                message = $"Error creando horario: {ex.Message}"
+            };
+        }
+    }
+    // ✅ CORREGIDO: ActualizarHorarioMedicoAsync
+   public async Task<ApiResponse<HorarioMedico>> ActualizarHorarioMedicoAsync(HorarioMedico horario)
+{
+    try
+    {
+        var data = new
+        {
+            id_medico = horario.id_medico,
+            id_sucursal = horario.id_sucursal,
+            dia_semana = horario.dia_semana,
+            hora_inicio = horario.hora_inicio.ToString(@"hh\:mm\:ss"), // ✅ CORREGIDO
+            hora_fin = horario.hora_fin.ToString(@"hh\:mm\:ss"),       // ✅ CORREGIDO
+            duracion_consulta = horario.duracion_consulta,             // ✅ CORREGIDO
+            observaciones = horario.observaciones
+        };
+
+        var json = JsonConvert.SerializeObject(data);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await _httpClient.PutAsync($"{_baseUrl}/api/horarios/{horario.id_horario}", content);
+        var responseContent = await response.Content.ReadAsStringAsync();
+
+        return JsonConvert.DeserializeObject<ApiResponse<HorarioMedico>>(responseContent);
+    }
+    catch (Exception ex)
+    {
+        return new ApiResponse<HorarioMedico>
+        {
+            success = false,
+            message = $"Error actualizando horario: {ex.Message}"
+        };
+    }
+}
+    public async Task<ApiResponse<bool>> EliminarHorarioMedicoAsync(int idHorario)
+    {
+        try
+        {
+            var response = await _httpClient.DeleteAsync($"{_baseUrl}/api/horarios/{idHorario}");
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<ApiResponse<bool>>(responseContent);
+        }
+        catch (Exception ex)
+        {
+            return new ApiResponse<bool>
+            {
+                success = false,
+                message = $"Error eliminando horario: {ex.Message}"
+            };
+        }
+    }
+
 }

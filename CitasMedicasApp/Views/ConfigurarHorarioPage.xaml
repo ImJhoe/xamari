@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.ConfigurarHorarioPage"
+             Title="Configurar Horario">
+
+    <ContentPage.Content>
+        <ScrollView Padding="20" BackgroundColor="#f8f9fa">
+            <StackLayout Spacing="20">
+
+                <!-- Título -->
+                <Frame BackgroundColor="#27ae60" HasShadow="True" CornerRadius="10">
+                    <StackLayout Orientation="Horizontal" Spacing="10">
+                        <Label Text="🕒" FontSize="24"/>
+                        <Label x:Name="TituloLabel"
+                               Text="CONFIGURAR NUEVO HORARIO" 
+                               TextColor="White" 
+                               FontSize="16" 
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Formulario de horario -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="📋 DETALLES DEL HORARIO" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#27ae60"/>
+
+                        <!-- Día de la semana -->
+                        <StackLayout>
+                            <Label Text="📅 Día de la semana:" FontAttributes="Bold" TextColor="#555"/>
+                            <Picker x:Name="DiaPicker" Title="Seleccione un día"/>
+                        </StackLayout>
+
+                        <!-- Hora de inicio -->
+                        <StackLayout>
+                            <Label Text="🕐 Hora de inicio:" FontAttributes="Bold" TextColor="#555"/>
+                            <TimePicker x:Name="HoraInicioPicker" Time="08:00:00"/>
+                        </StackLayout>
+
+                        <!-- Hora de fin -->
+                        <StackLayout>
+                            <Label Text="🕕 Hora de fin:" FontAttributes="Bold" TextColor="#555"/>
+                            <TimePicker x:Name="HoraFinPicker" Time="17:00:00"/>
+                        </StackLayout>
+
+                        <!-- Sucursal -->
+                        <StackLayout>
+                            <Label Text="🏥 Sucursal:" FontAttributes="Bold" TextColor="#555"/>
+                            <Picker x:Name="SucursalPicker" Title="Seleccione una sucursal"/>
+                        </StackLayout>
+
+                        <!-- Duración de consulta -->
+                        <StackLayout>
+                            <Label Text="⏱️ Duración por consulta (minutos):" FontAttributes="Bold" TextColor="#555"/>
+                            <Picker x:Name="DuracionPicker" Title="Seleccione duración"/>
+                        </StackLayout>
+
+                        <!-- Observaciones -->
+                        <StackLayout>
+                            <Label Text="📝 Observaciones (opcional):" FontAttributes="Bold" TextColor="#555"/>
+                            <Editor x:Name="ObservacionesEditor" 
+                                   Placeholder="Ej: Solo consultas de emergencia"
+                                   HeightRequest="80"/>
+                        </StackLayout>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Previsualización del horario -->
+                <Frame x:Name="PrevisualizacionFrame" 
+                       BackgroundColor="White" 
+                       HasShadow="True" 
+                       CornerRadius="10"
+                       IsVisible="False">
+                    <StackLayout Spacing="15">
+                        <Label Text="👁️ PREVISUALIZACIÓN" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#3498db"/>
+
+                        <Frame BackgroundColor="#ebf3fd" CornerRadius="8">
+                            <StackLayout Spacing="5">
+                                <Label x:Name="PrevDiaLabel" FontSize="14" FontAttributes="Bold"/>
+                                <Label x:Name="PrevHorarioLabel" FontSize="14"/>
+                                <Label x:Name="PrevSucursalLabel" FontSize="12" TextColor="#7f8c8d"/>
+                                <Label x:Name="PrevConsultasLabel" FontSize="12" TextColor="#3498db"/>
+                            </StackLayout>
+                        </Frame>
+
+                        <Button Text="🔄 ACTUALIZAR PREVISUALIZACIÓN"
+                                BackgroundColor="#3498db"
+                                TextColor="White"
+                                CornerRadius="20"
+                                FontSize="12"
+                                Clicked="OnActualizarPrevClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Botones de acción -->
+                <StackLayout Spacing="10">
+                    <Button x:Name="GuardarButton"
+                            Text="💾 GUARDAR HORARIO"
+                            BackgroundColor="#27ae60"
+                            TextColor="White"
+                            CornerRadius="25"
+                            FontAttributes="Bold"
+                            Clicked="OnGuardarClicked"/>
+
+                    <Button x:Name="EliminarButton"
+                            Text="🗑️ ELIMINAR HORARIO"
+                            BackgroundColor="#e74c3c"
+                            TextColor="White"
+                            CornerRadius="25"
+                            IsVisible="False"
+                            Clicked="OnEliminarClicked"/>
+
+                    <Button Text="❌ CANCELAR"
+                            BackgroundColor="#95a5a6"
+                            TextColor="White"
+                            CornerRadius="25"
+                            Clicked="OnCancelarClicked"/>
+                </StackLayout>
+
+                <!-- Loading indicator -->
+                <ActivityIndicator x:Name="LoadingIndicator" 
+                                 IsVisible="False" 
+                                 IsRunning="False" 
+                                 Color="#27ae60"/>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

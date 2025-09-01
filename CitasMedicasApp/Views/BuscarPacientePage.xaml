@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.BuscarPacientePage"
+             Title="Buscar Paciente">
+
+    <ContentPage.Content>
+        <ScrollView Padding="20" BackgroundColor="#f8f9fa">
+            <StackLayout Spacing="20">
+
+                <!-- Título -->
+                <Frame BackgroundColor="#3498db" HasShadow="True" CornerRadius="10">
+                    <StackLayout Orientation="Horizontal" Spacing="10">
+                        <Label Text="🔍" FontSize="24"/>
+                        <Label Text="PUNTO 4: BÚSQUEDA DE PACIENTE" 
+                               TextColor="White" 
+                               FontSize="16" 
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Formulario de búsqueda -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="Buscar por Cédula de Identidad" 
+                               FontAttributes="Bold" 
+                               TextColor="#2c3e50"/>
+
+                        <Entry x:Name="CedulaEntry" 
+                               Placeholder="Ingrese número de cédula"
+                               Keyboard="Numeric"
+                               MaxLength="10"/>
+
+                        <Button x:Name="BuscarButton"
+                                Text="🔍 BUSCAR PACIENTE"
+                                BackgroundColor="#3498db"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnBuscarClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Resultado de la búsqueda -->
+                <Frame x:Name="ResultadoFrame" 
+                       BackgroundColor="White" 
+                       HasShadow="True" 
+                       CornerRadius="10"
+                       IsVisible="False">
+                    <StackLayout Spacing="15">
+                        <Label x:Name="ResultadoTitulo" 
+                               FontAttributes="Bold" 
+                               FontSize="16"/>
+
+                        <!-- Datos del paciente encontrado -->
+                        <StackLayout x:Name="DatosPacienteLayout" IsVisible="False" Spacing="10">
+                            <Label x:Name="NombrePacienteLabel"/>
+                            <Label x:Name="CedulaPacienteLabel"/>
+                            <Label x:Name="EmailPacienteLabel"/>
+                            <Label x:Name="TelefonoPacienteLabel"/>
+
+                            <Button x:Name="CrearCitaButton"
+                                    Text="📅 CREAR CITA PARA ESTE PACIENTE"
+                                    BackgroundColor="#27ae60"
+                                    TextColor="White"
+                                    CornerRadius="25"
+                                    Clicked="OnCrearCitaClicked"/>
+                        </StackLayout>
+
+                        <!-- Botón para agregar paciente nuevo -->
+                        <Button x:Name="AgregarPacienteButton"
+                                Text="➕ AÑADIR PACIENTE"
+                                BackgroundColor="#e67e22"
+                                TextColor="White"
+                                CornerRadius="25"
+                                IsVisible="False"
+                                Clicked="OnAgregarPacienteClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Loading indicator -->
+                <ActivityIndicator x:Name="LoadingIndicator" 
+                                 IsVisible="False" 
+                                 IsRunning="False" 
+                                 Color="#3498db"/>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

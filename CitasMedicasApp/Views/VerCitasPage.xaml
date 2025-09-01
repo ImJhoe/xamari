@@ -8,7 +8,8 @@
         <ToolbarItem Text="Actualizar" 
                      IconImageSource="refresh.png" 
                      Clicked="OnRefreshClicked"/>
-        <ToolbarItem Text="Filtros" 
+        <ToolbarItem x:Name="FiltrosToolbar"
+                     Text="Filtros" 
                      IconImageSource="filter.png" 
                      Clicked="OnFiltrosClicked"/>
     </ContentPage.ToolbarItems>
@@ -16,118 +17,168 @@
     <Grid BackgroundColor="#f8f9fa">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
+        <!-- Header basado en rol -->
+        <Frame x:Name="HeaderFrame"
+               Grid.Row="0" 
+               BackgroundColor="#3498db" 
+               HasShadow="True" 
+               CornerRadius="10" 
+               Margin="15,10,15,5">
+            <StackLayout Orientation="Horizontal" Spacing="10">
+                <Label x:Name="HeaderIcon" Text="📅" FontSize="24"/>
+                <StackLayout VerticalOptions="Center">
+                    <Label x:Name="HeaderTitulo" 
+                           Text="CONSULTAR CITAS" 
+                           TextColor="White" 
+                           FontSize="16" 
+                           FontAttributes="Bold"/>
+                    <Label x:Name="HeaderSubtitulo" 
+                           Text="Filtros aplicados según su rol" 
+                           TextColor="#ecf0f1" 
+                           FontSize="12"/>
+                </StackLayout>
+            </StackLayout>
+        </Frame>
 
         <!-- Panel de filtros -->
         <Frame x:Name="FiltrosFrame"
-               Grid.Row="0" 
+               Grid.Row="1" 
                BackgroundColor="White" 
                HasShadow="True" 
                CornerRadius="10" 
-               Margin="15,10"
+               Margin="15,5"
                IsVisible="False">
-            <StackLayout Spacing="10">
-                <Label Text="FILTROS DE BÚSQUEDA" 
+            <StackLayout Spacing="15">
+                <Label Text="🔍 FILTROS DE BÚSQUEDA" 
                        FontAttributes="Bold" 
                        TextColor="#2c3e50"
                        HorizontalOptions="Center"/>
 
-                <Grid RowDefinitions="*, *, *" ColumnDefinitions="*, *" RowSpacing="10" ColumnSpacing="10">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*" RowSpacing="10" ColumnSpacing="10">
                     <!-- Fecha desde -->
                     <StackLayout Grid.Row="0" Grid.Column="0">
-                        <Label Text="Desde:" FontSize="12"/>
-                        <DatePicker x:Name="FechaDesdeDate" Date="{x:Static x:DateTime.Now}"/>
+                        <Label Text="📅 Desde:" FontSize="12" FontAttributes="Bold"/>
+                        <DatePicker x:Name="FechaDesdeDate"/>
                     </StackLayout>
 
-                    <!-- Fecha hasta - SIN CONVERTIDOR -->
+                    <!-- Fecha hasta -->
                     <StackLayout Grid.Row="0" Grid.Column="1">
-                        <Label Text="Hasta:" FontSize="12"/>
+                        <Label Text="📅 Hasta:" FontSize="12" FontAttributes="Bold"/>
                         <DatePicker x:Name="FechaHastaDate"/>
                     </StackLayout>
 
-                    <!-- Especialidad -->
-                    <StackLayout Grid.Row="1" Grid.Column="0">
-                        <Label Text="Especialidad:" FontSize="12"/>
+                    <!-- Especialidad (solo para admin/recepcionista) -->
+                    <StackLayout x:Name="EspecialidadFiltroStack" Grid.Row="1" Grid.Column="0" IsVisible="False">
+                        <Label Text="🏥 Especialidad:" FontSize="12" FontAttributes="Bold"/>
                         <Picker x:Name="EspecialidadFiltro" Title="Todas"/>
                     </StackLayout>
 
                     <!-- Estado -->
                     <StackLayout Grid.Row="1" Grid.Column="1">
-                        <Label Text="Estado:" FontSize="12"/>
-                        <Picker x:Name="EstadoFiltro" Title="Todos">
-                            <Picker.ItemsSource>
-                                <x:Array Type="{x:Type x:String}">
-                                    <x:String>Todos</x:String>
-                                    <x:String>Pendiente</x:String>
-                                    <x:String>Confirmada</x:String>
-                                    <x:String>Completada</x:String>
-                                    <x:String>Cancelada</x:String>
-                                </x:Array>
-                            </Picker.ItemsSource>
-                        </Picker>
+                        <Label Text="📊 Estado:" FontSize="12" FontAttributes="Bold"/>
+                        <Picker x:Name="EstadoFiltro" Title="Todos"/>
+                    </StackLayout>
+
+                    <!-- Médico (solo para admin) -->
+                    <StackLayout x:Name="MedicoFiltroStack" Grid.Row="2" Grid.ColumnSpan="2" IsVisible="False">
+                        <Label Text="👨‍⚕️ Médico:" FontSize="12" FontAttributes="Bold"/>
+                        <Picker x:Name="MedicoFiltro" Title="Todos"/>
                     </StackLayout>
                 </Grid>
 
-                <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="10">
-                    <Button Text="APLICAR" 
-                            BackgroundColor="#3498db"
+                <StackLayout Orientation="Horizontal" Spacing="10">
+                    <Button Text="🔍 APLICAR FILTROS"
+                            BackgroundColor="#27ae60"
                             TextColor="White"
-                            CornerRadius="15"
+                            CornerRadius="20"
+                            FontSize="12"
+                            HorizontalOptions="FillAndExpand"
                             Clicked="OnAplicarFiltrosClicked"/>
-                    <Button Text="LIMPIAR" 
+
+                    <Button Text="🔄 LIMPIAR"
                             BackgroundColor="#95a5a6"
                             TextColor="White"
-                            CornerRadius="15"
+                            CornerRadius="20"
+                            FontSize="12"
                             Clicked="OnLimpiarFiltrosClicked"/>
                 </StackLayout>
             </StackLayout>
         </Frame>
 
         <!-- Lista de citas -->
-        <ScrollView Grid.Row="1">
-            <StackLayout x:Name="CitasStackLayout" 
-                         Padding="15" 
-                         Spacing="10">
+        <ScrollView Grid.Row="2" Padding="15,5">
+            <StackLayout Spacing="10">
 
                 <!-- Resumen -->
                 <Frame x:Name="ResumenFrame" 
-                       BackgroundColor="#3498db" 
+                       BackgroundColor="White" 
                        HasShadow="True" 
-                       CornerRadius="10"
+                       CornerRadius="8"
                        IsVisible="False">
-                    <StackLayout>
-                        <Label x:Name="ResumenLabel" 
-                               Text="📊 RESUMEN DE CITAS" 
-                               TextColor="White"
-                               FontAttributes="Bold"
-                               HorizontalOptions="Center"/>
+                    <StackLayout Spacing="5">
+                        <Label Text="📊 RESUMEN" 
+                               FontAttributes="Bold" 
+                               FontSize="14" 
+                               TextColor="#2c3e50"/>
                         <Label x:Name="ResumenDetalle" 
-                               Text="" 
-                               TextColor="White"
-                               FontSize="12"
-                               HorizontalOptions="Center"/>
+                               FontSize="12" 
+                               TextColor="#7f8c8d"/>
                     </StackLayout>
                 </Frame>
 
-                <!-- Indicador de carga -->
-                <ActivityIndicator x:Name="LoadingIndicator" 
-                                 IsVisible="False"
-                                 IsRunning="False"
-                                 Color="#3498db"
-                                 HeightRequest="50"/>
+                <!-- Lista de citas -->
+                <StackLayout x:Name="CitasStack" Spacing="10"/>
 
-                <!-- Mensaje cuando no hay datos -->
-                <Label x:Name="NoDataLabel" 
-                       Text="No se encontraron citas" 
-                       IsVisible="False"
-                       HorizontalOptions="Center"
-                       VerticalOptions="CenterAndExpand"
-                       FontSize="16"
-                       TextColor="#7f8c8d"/>
+                <!-- Sin citas -->
+                <Frame x:Name="SinCitasFrame" 
+                       BackgroundColor="White" 
+                       HasShadow="True" 
+                       CornerRadius="10"
+                       IsVisible="False">
+                    <StackLayout Spacing="15" Padding="20">
+                        <Label Text="📅" 
+                               FontSize="50" 
+                               HorizontalOptions="Center"
+                               TextColor="#bdc3c7"/>
+
+                        <Label x:Name="SinCitasTexto"
+                               Text="NO HAY CITAS DISPONIBLES" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#7f8c8d"
+                               HorizontalOptions="Center"/>
+
+                        <Label x:Name="SinCitasDetalle"
+                               Text="Pruebe ajustando los filtros de búsqueda." 
+                               FontSize="14"
+                               TextColor="#95a5a6"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                    </StackLayout>
+                </Frame>
 
             </StackLayout>
         </ScrollView>
+
+        <!-- Loading indicator -->
+        <StackLayout Grid.Row="3" 
+                     BackgroundColor="White"
+                     IsVisible="False"
+                     x:Name="LoadingStack"
+                     Padding="20">
+            <ActivityIndicator x:Name="LoadingIndicator" 
+                             IsRunning="False" 
+                             Color="#3498db"/>
+            <Label Text="Cargando citas..." 
+                   FontSize="14" 
+                   TextColor="#7f8c8d"
+                   HorizontalOptions="Center"/>
+        </StackLayout>
 
     </Grid>
 </ContentPage>

@@ -1,0 +1,191 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.PerfilPacientePage"
+             Title="Mi Perfil">
+
+    <ContentPage.Content>
+        <ScrollView Padding="20" BackgroundColor="#f8f9fa">
+            <StackLayout Spacing="20">
+
+                <!-- Título -->
+                <Frame BackgroundColor="#e67e22" HasShadow="True" CornerRadius="10">
+                    <StackLayout Orientation="Horizontal" Spacing="10">
+                        <Label Text="👤" FontSize="24"/>
+                        <Label Text="MI PERFIL DE PACIENTE" 
+                               TextColor="White" 
+                               FontSize="16" 
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Información personal -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="📝 INFORMACIÓN PERSONAL" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#e67e22"/>
+
+                        <Grid RowSpacing="10" ColumnSpacing="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label Grid.Row="0" Grid.Column="0" Text="👤" FontSize="16"/>
+                            <Label Grid.Row="0" Grid.Column="1" x:Name="NombreLabel" FontSize="16" FontAttributes="Bold"/>
+
+                            <Label Grid.Row="1" Grid.Column="0" Text="🆔" FontSize="16"/>
+                            <Label Grid.Row="1" Grid.Column="1" x:Name="CedulaLabel" FontSize="16"/>
+
+                            <Label Grid.Row="2" Grid.Column="0" Text="📧" FontSize="16"/>
+                            <Label Grid.Row="2" Grid.Column="1" x:Name="EmailLabel" FontSize="16"/>
+
+                            <Label Grid.Row="3" Grid.Column="0" Text="📞" FontSize="16"/>
+                            <Label Grid.Row="3" Grid.Column="1" x:Name="TelefonoLabel" FontSize="16"/>
+
+                            <Label Grid.Row="4" Grid.Column="0" Text="🏷️" FontSize="16"/>
+                            <Label Grid.Row="4" Grid.Column="1" x:Name="RolLabel" FontSize="16"/>
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Información médica -->
+                <Frame x:Name="InfoMedicaFrame" 
+                       BackgroundColor="White" 
+                       HasShadow="True" 
+                       CornerRadius="10"
+                       IsVisible="False">
+                    <StackLayout Spacing="15">
+                        <Label Text="🏥 INFORMACIÓN MÉDICA" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#27ae60"/>
+
+                        <Grid RowSpacing="10" ColumnSpacing="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label Grid.Row="0" Grid.Column="0" Text="🎂" FontSize="16"/>
+                            <Label Grid.Row="0" Grid.Column="1" x:Name="FechaNacimientoLabel" FontSize="16"/>
+
+                            <Label Grid.Row="1" Grid.Column="0" Text="🩸" FontSize="16"/>
+                            <Label Grid.Row="1" Grid.Column="1" x:Name="TipoSangreLabel" FontSize="16"/>
+
+                            <Label Grid.Row="2" Grid.Column="0" Text="⚠️" FontSize="16"/>
+                            <Label Grid.Row="2" Grid.Column="1" x:Name="AlergiasLabel" FontSize="16"/>
+
+                            <Label Grid.Row="3" Grid.Column="0" Text="🚨" FontSize="16"/>
+                            <Label Grid.Row="3" Grid.Column="1" x:Name="ContactoEmergenciaLabel" FontSize="16"/>
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Estadísticas de citas -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="📊 ESTADÍSTICAS DE CITAS" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#3498db"/>
+
+                        <Grid RowSpacing="10" ColumnSpacing="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Total de citas -->
+                            <Frame Grid.Row="0" Grid.Column="0" BackgroundColor="#ecf0f1" CornerRadius="8">
+                                <StackLayout Spacing="2" HorizontalOptions="Center">
+                                    <Label x:Name="TotalCitasLabel" Text="0" FontSize="24" FontAttributes="Bold" TextColor="#2c3e50" HorizontalOptions="Center"/>
+                                    <Label Text="Total" FontSize="12" TextColor="#7f8c8d" HorizontalOptions="Center"/>
+                                </StackLayout>
+                            </Frame>
+
+                            <!-- Citas completadas -->
+                            <Frame Grid.Row="0" Grid.Column="1" BackgroundColor="#d5f4e6" CornerRadius="8">
+                                <StackLayout Spacing="2" HorizontalOptions="Center">
+                                    <Label x:Name="CitasCompletadasLabel" Text="0" FontSize="24" FontAttributes="Bold" TextColor="#27ae60" HorizontalOptions="Center"/>
+                                    <Label Text="Completadas" FontSize="12" TextColor="#27ae60" HorizontalOptions="Center"/>
+                                </StackLayout>
+                            </Frame>
+
+                            <!-- Citas pendientes -->
+                            <Frame Grid.Row="0" Grid.Column="2" BackgroundColor="#fef9e7" CornerRadius="8">
+                                <StackLayout Spacing="2" HorizontalOptions="Center">
+                                    <Label x:Name="CitasPendientesLabel" Text="0" FontSize="24" FontAttributes="Bold" TextColor="#f39c12" HorizontalOptions="Center"/>
+                                    <Label Text="Pendientes" FontSize="12" TextColor="#f39c12" HorizontalOptions="Center"/>
+                                </StackLayout>
+                            </Frame>
+                        </Grid>
+
+                        <Label x:Name="UltimaCitaLabel" 
+                               Text="Última cita: No hay registros" 
+                               FontSize="12" 
+                               TextColor="#7f8c8d"
+                               HorizontalOptions="Center"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Botones de acción -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="⚙️ ACCIONES" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#34495e"/>
+
+                        <Button Text="✏️ ACTUALIZAR INFORMACIÓN"
+                                BackgroundColor="#3498db"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnActualizarInfoClicked"/>
+
+                        <Button Text="🔒 CAMBIAR CONTRASEÑA"
+                                BackgroundColor="#9b59b6"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnCambiarPasswordClicked"/>
+
+                        <Button Text="📋 VER MIS CITAS"
+                                BackgroundColor="#27ae60"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnVerMisCitasClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Loading indicator -->
+                <ActivityIndicator x:Name="LoadingIndicator" 
+                                 IsVisible="False" 
+                                 IsRunning="False" 
+                                 Color="#e67e22"/>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

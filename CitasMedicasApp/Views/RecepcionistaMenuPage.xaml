@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.RecepcionistaMenuPage"
+             Title="Menú Recepcionista">
+
+    <ContentPage.Content>
+        <ScrollView BackgroundColor="#f8f9fa">
+            <StackLayout Padding="20" Spacing="15">
+
+                <!-- Header del usuario -->
+                <Frame BackgroundColor="#e67e22" HasShadow="True" CornerRadius="10">
+                    <StackLayout Orientation="Horizontal" Spacing="15">
+                        <Label Text="🏥" FontSize="30"/>
+                        <StackLayout VerticalOptions="CenterAndExpand">
+                            <Label x:Name="WelcomeLabel" 
+                                   Text="Bienvenido, Recepcionista" 
+                                   TextColor="White" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold"/>
+                            <Label x:Name="RoleLabel" 
+                                   Text="Gestión de citas y pacientes" 
+                                   TextColor="#ecf0f1" 
+                                   FontSize="14"/>
+                        </StackLayout>
+                        <Button Text="🚪" 
+                                BackgroundColor="Transparent"
+                                TextColor="#e74c3c"
+                                FontSize="20"
+                                Clicked="OnLogoutClicked"
+                                HorizontalOptions="End"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- PUNTOS DE LA LISTA DE COTEJO 3-7 -->
+
+                <!-- Punto 3: Creación de cita con búsqueda por cédula -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="📅 PUNTO 3: GESTIÓN DE CITAS" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#e67e22"/>
+                        <Label Text="Pantalla de creación de cita accesible desde el menú, opción de búsqueda por cédula del paciente" 
+                               FontSize="12" 
+                               TextColor="#7f8c8d"/>
+
+                        <Button x:Name="CrearCitaButton"
+                                Text="➕ CREAR NUEVA CITA"
+                                BackgroundColor="#e67e22"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnCrearCitaClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Punto 4: Validación de pacientes existentes -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="🔍 PUNTO 4: BÚSQUEDA DE PACIENTES" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#3498db"/>
+                        <Label Text="Si paciente existe, muestra sus datos en pantalla, si paciente no existe, aparece botón de 'Añadir paciente'" 
+                               FontSize="12" 
+                               TextColor="#7f8c8d"/>
+
+                        <Button x:Name="BuscarPacienteButton"
+                                Text="🔍 BUSCAR PACIENTE POR CÉDULA"
+                                BackgroundColor="#3498db"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnBuscarPacienteClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Punto 5: Registro de nuevo paciente -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="👤 PUNTO 5: REGISTRO DE PACIENTES" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#27ae60"/>
+                        <Label Text="Pantalla de registro de nuevo paciente funcional y vinculada al flujo de cita" 
+                               FontSize="12" 
+                               TextColor="#7f8c8d"/>
+
+                        <Button x:Name="RegistrarPacienteButton"
+                                Text="➕ REGISTRAR NUEVO PACIENTE"
+                                BackgroundColor="#27ae60"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnRegistrarPacienteClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Punto 6: Flujo automático -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="🔄 PUNTO 6: FLUJO AUTOMÁTICO" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#9b59b6"/>
+                        <Label Text="Tras registrar paciente, la app regresa automáticamente a formulario de cita" 
+                               FontSize="12" 
+                               TextColor="#7f8c8d"/>
+
+                        <Button x:Name="FlujoCompletoButton"
+                                Text="🔄 FLUJO COMPLETO: PACIENTE → CITA"
+                                BackgroundColor="#9b59b6"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnFlujoCompletoClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Punto 7: Horarios disponibles -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="🕒 PUNTO 7: HORARIOS MÉDICOS" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#1abc9c"/>
+                        <Label Text="La app muestra horarios disponibles del médico para seleccionar en la cita" 
+                               FontSize="12" 
+                               TextColor="#7f8c8d"/>
+
+                        <Button x:Name="VerHorariosButton"
+                                Text="🕒 VER HORARIOS DISPONIBLES"
+                                BackgroundColor="#1abc9c"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnVerHorariosClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Resumen de Citas -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="📋 RESUMEN DEL DÍA" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#34495e"/>
+
+                        <Button x:Name="VerCitasButton"
+                                Text="📋 VER CITAS DE HOY"
+                                BackgroundColor="#34495e"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnVerCitasClicked"/>
+                    </StackLayout>
+                </Frame>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.PacienteMenuPage"
+             Title="Menú Paciente">
+
+    <ContentPage.Content>
+        <ScrollView BackgroundColor="#f8f9fa">
+            <StackLayout Padding="20" Spacing="15">
+
+                <!-- Header del usuario -->
+                <Frame BackgroundColor="#27ae60" HasShadow="True" CornerRadius="10">
+                    <StackLayout Orientation="Horizontal" Spacing="15">
+                        <Label Text="🧑‍🦱" FontSize="30"/>
+                        <StackLayout VerticalOptions="CenterAndExpand">
+                            <Label x:Name="WelcomeLabel" 
+                                   Text="Bienvenido, Paciente" 
+                                   TextColor="White" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold"/>
+                            <Label x:Name="RoleLabel" 
+                                   Text="Consulta tus citas médicas" 
+                                   TextColor="#ecf0f1" 
+                                   FontSize="14"/>
+                        </StackLayout>
+                        <Button Text="🚪" 
+                                BackgroundColor="Transparent"
+                                TextColor="#e74c3c"
+                                FontSize="20"
+                                Clicked="OnLogoutClicked"
+                                HorizontalOptions="End"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Solo ver citas agendadas -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="📅 MIS CITAS MÉDICAS" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#27ae60"/>
+                        <Label Text="Solo ver citas agendadas" 
+                               FontSize="12" 
+                               TextColor="#7f8c8d"/>
+
+                        <Button x:Name="MisCitasButton"
+                                Text="📋 VER MIS CITAS"
+                                BackgroundColor="#27ae60"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnMisCitasClicked"/>
+
+                        <Button x:Name="MiProximaCitaButton"
+                                Text="⏰ MI PRÓXIMA CITA"
+                                BackgroundColor="#3498db"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnMiProximaCitaClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Información personal -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="👤 MI INFORMACIÓN" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#e67e22"/>
+
+                        <Button x:Name="MiPerfilButton"
+                                Text="👤 VER MI PERFIL"
+                                BackgroundColor="#e67e22"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnMiPerfilClicked"/>
+
+                        <Button x:Name="MiHistorialButton"
+                                Text="📋 MI HISTORIAL MÉDICO"
+                                BackgroundColor="#9b59b6"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnMiHistorialClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Información de la clínica -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="🏥 INFORMACIÓN DE LA CLÍNICA" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#34495e"/>
+
+                        <Button x:Name="UbicacionButton"
+                                Text="📍 UBICACIÓN Y CONTACTO"
+                                BackgroundColor="#34495e"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnUbicacionClicked"/>
+
+                        <Button x:Name="EspecialidadesButton"
+                                Text="🏥 ESPECIALIDADES DISPONIBLES"
+                                BackgroundColor="#1abc9c"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnEspecialidadesClicked"/>
+                    </StackLayout>
+                </Frame>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

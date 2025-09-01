@@ -2,6 +2,7 @@
 
 namespace CitasMedicasApp.Models
 {
+    // ===== CLASES PARA LOGIN =====
     public class LoginResponse
     {
         public bool success { get; set; }
@@ -11,18 +12,20 @@ namespace CitasMedicasApp.Models
 
     public class LoginData
     {
-        public UserData user { get; set; }
+        public LoginUser user { get; set; }
+        public UserPermissions permissions { get; set; }
         public string token { get; set; }
         public int expires_in { get; set; }
     }
 
-    public class UserData
+    public class LoginUser
     {
         public int id { get; set; }
         public string username { get; set; }
         public string nombres { get; set; }
         public string apellidos { get; set; }
         public string rol { get; set; }
+        public int rol_id { get; set; }
         public string correo { get; set; }
     }
 }

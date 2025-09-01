@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.DetalleCitaPage"
+             Title="Detalle de Cita">
+
+    <ContentPage.Content>
+        <ScrollView Padding="20" BackgroundColor="#f8f9fa">
+            <StackLayout Spacing="20">
+
+                <!-- Título con estado -->
+                <Frame x:Name="TituloFrame" BackgroundColor="#3498db" HasShadow="True" CornerRadius="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackLayout Grid.Column="0">
+                            <Label Text="📋 DETALLE DE CITA" 
+                                   TextColor="White" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold"/>
+                            <Label x:Name="NumeroLabel"
+                                   Text="Cita #12345" 
+                                   TextColor="#ecf0f1" 
+                                   FontSize="12"/>
+                        </StackLayout>
+                        <Frame x:Name="EstadoFrame" 
+                               Grid.Column="1" 
+                               CornerRadius="15" 
+                               Padding="10,5"
+                               HasShadow="False">
+                            <Label x:Name="EstadoLabel" 
+                                   FontSize="12" 
+                                   FontAttributes="Bold"
+                                   TextColor="White"/>
+                        </Frame>
+                    </Grid>
+                </Frame>
+
+                <!-- Información del paciente -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="10">
+                        <Label Text="👤 INFORMACIÓN DEL PACIENTE" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#27ae60"/>
+
+                        <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" RowSpacing="8" ColumnSpacing="10">
+                            <Label Grid.Row="0" Grid.Column="0" Text="📋" FontSize="16"/>
+                            <Label Grid.Row="0" Grid.Column="1" x:Name="PacienteNombreLabel" FontSize="16" FontAttributes="Bold"/>
+
+                            <Label Grid.Row="1" Grid.Column="0" Text="🆔" FontSize="16"/>
+                            <Label Grid.Row="1" Grid.Column="1" x:Name="PacienteCedulaLabel" FontSize="14"/>
+
+                            <Label Grid.Row="2" Grid.Column="0" Text="📧" FontSize="16"/>
+                            <Label Grid.Row="2" Grid.Column="1" x:Name="PacienteEmailLabel" FontSize="14"/>
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Información médica -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="10">
+                        <Label Text="👨‍⚕️ INFORMACIÓN MÉDICA" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#3498db"/>
+
+                        <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" RowSpacing="8" ColumnSpacing="10">
+                            <Label Grid.Row="0" Grid.Column="0" Text="👨‍⚕️" FontSize="16"/>
+                            <Label Grid.Row="0" Grid.Column="1" x:Name="MedicoNombreLabel" FontSize="16" FontAttributes="Bold"/>
+
+                            <Label Grid.Row="1" Grid.Column="0" Text="🏥" FontSize="16"/>
+                            <Label Grid.Row="1" Grid.Column="1" x:Name="EspecialidadLabel" FontSize="14"/>
+
+                            <Label Grid.Row="2" Grid.Column="0" Text="🏢" FontSize="16"/>
+                            <Label Grid.Row="2" Grid.Column="1" x:Name="SucursalLabel" FontSize="14"/>
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Fecha y hora -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="10">
+                        <Label Text="📅 FECHA Y HORA" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#e67e22"/>
+
+                        <Frame BackgroundColor="#fef9e7" CornerRadius="8" Padding="15">
+                            <StackLayout Spacing="5">
+                                <Label x:Name="FechaCitaLabel" 
+                                       FontSize="18" 
+                                       FontAttributes="Bold"
+                                       TextColor="#e67e22"
+                                       HorizontalOptions="Center"/>
+                                <Label x:Name="HoraCitaLabel" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold"
+                                       TextColor="#e67e22"
+                                       HorizontalOptions="Center"/>
+                                <Label x:Name="TiempoRestanteLabel" 
+                                       FontSize="12" 
+                                       TextColor="#7f8c8d"
+                                       HorizontalOptions="Center"/>
+                            </StackLayout>
+                        </Frame>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Motivo y tipo -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="10">
+                        <Label Text="📝 DETALLES DE LA CONSULTA" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#9b59b6"/>
+
+                        <StackLayout x:Name="MotivoStack"/>
+                        <StackLayout x:Name="TipoCitaStack"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Botones de acción -->
+                <Frame x:Name="AccionesFrame" BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="⚡ ACCIONES DISPONIBLES" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#34495e"/>
+
+                        <StackLayout x:Name="BotonesAccionStack" Spacing="10"/>
+                    </StackLayout>
+                </Frame>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
+    

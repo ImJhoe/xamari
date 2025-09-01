@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CitasMedicasApp.Views.GestionHorariosPage"
+             Title="Gestión de Horarios">
+
+    <ContentPage.Content>
+        <ScrollView Padding="20" BackgroundColor="#f8f9fa">
+            <StackLayout Spacing="20">
+
+                <!-- Título -->
+                <Frame BackgroundColor="#27ae60" HasShadow="True" CornerRadius="10">
+                    <StackLayout Orientation="Horizontal" Spacing="10">
+                        <Label Text="🕒" FontSize="24"/>
+                        <Label Text="GESTIÓN DE MIS HORARIOS" 
+                               TextColor="White" 
+                               FontSize="16" 
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Mis horarios actuales -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="MIS HORARIOS ACTUALES" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#27ae60"/>
+
+                        <CollectionView x:Name="MisHorariosCollectionView">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame BackgroundColor="#ecf0f1" Margin="0,5" CornerRadius="8">
+                                        <Grid Padding="10" ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackLayout Grid.Column="0">
+                                                <Label Text="{Binding DiaTexto}" 
+                                                       FontAttributes="Bold" 
+                                                       FontSize="14"/>
+                                                <Label Text="{Binding HorarioCompleto}" 
+                                                       FontSize="12" 
+                                                       TextColor="#555"/>
+                                                <Label Text="{Binding SucursalTexto}" 
+                                                       FontSize="11" 
+                                                       TextColor="#777"/>
+                                            </StackLayout>
+
+                                            <Button Grid.Column="1"
+                                                    Text="✏️"
+                                                    BackgroundColor="#3498db"
+                                                    TextColor="White"
+                                                    FontSize="16"
+                                                    WidthRequest="40"
+                                                    HeightRequest="40"
+                                                    CornerRadius="20"
+                                                    Command="{Binding Source={x:Reference MisHorariosCollectionView}, Path=Parent.Parent.Parent.Parent.BindingContext.EditarHorarioCommand}"
+                                                    CommandParameter="{Binding .}"/>
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Label x:Name="NoHorariosLabel" 
+                               Text="No tiene horarios configurados" 
+                               FontSize="14" 
+                               TextColor="#e74c3c"
+                               HorizontalOptions="Center"
+                               IsVisible="False"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Agregar nuevo horario -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10">
+                    <StackLayout Spacing="15">
+                        <Label Text="AGREGAR NUEVO HORARIO" 
+                               FontAttributes="Bold" 
+                               FontSize="16"
+                               TextColor="#e67e22"/>
+
+                        <Button x:Name="AgregarHorarioButton"
+                                Text="➕ CONFIGURAR NUEVO HORARIO"
+                                BackgroundColor="#e67e22"
+                                TextColor="White"
+                                CornerRadius="25"
+                                Clicked="OnAgregarHorarioClicked"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Loading indicator -->
+                <ActivityIndicator x:Name="LoadingIndicator" 
+                                 IsVisible="False" 
+                                 IsRunning="False" 
+                                 Color="#27ae60"/>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
