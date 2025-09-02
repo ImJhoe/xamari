@@ -27,36 +27,49 @@ namespace CitasMedicasApp.Views
             CargarMedicos();
         }
 
-        private async void CargarMedicos()
+        private async Task CargarMedicos()
         {
             ShowLoading(true);
             NoDataLabel.IsVisible = false;
+            MedicosStackLayout.Children.Clear();
 
             try
             {
                 var response = await _apiService.ObtenerTodosMedicosAsync();
-
-                if (response.success && response.data != null)
+                if (response.success && response.data != null && response.data.Any())
                 {
                     _todosMedicos = response.data;
                     _medicosFiltrados = new List<MedicoCompleto>(_todosMedicos);
 
                     // Cargar horarios para cada médico
-                    foreach (var medico in _medicosFiltrados)
+                    foreach (var medico in _todosMedicos)
                     {
-                        await CargarHorariosMedico(medico);
+                        try
+                        {
+                            await CargarHorariosMedico(medico);
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error cargando horarios para médico {medico.id_doctor}: {ex.Message}");
+                            // Asegurarse de que horarios no sea null
+                            if (medico.horarios == null)
+                            {
+                                medico.horarios = new List<HorarioMedicoDetallado>();
+                            }
+                        }
                     }
 
                     MostrarMedicos();
                 }
                 else
                 {
-                    ShowMessage($"Error al cargar médicos: {response.message}", false);
+                    ShowMessage($"Error al cargar médicos: {response?.message ?? "Sin datos"}", false);
                     NoDataLabel.IsVisible = true;
                 }
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error cargando médicos: {ex.Message}");
                 ShowMessage($"Error de conexión: {ex.Message}", false);
                 NoDataLabel.IsVisible = true;
             }
@@ -71,26 +84,58 @@ namespace CitasMedicasApp.Views
         {
             try
             {
-                var response = await _apiService.ObtenerHorariosMedicoDetalladosAsync(medico.id_doctor);
+                if (medico?.id_doctor == null)
+                {
+                    medico.horarios = new List<HorarioMedicoDetallado>();
+                    return;
+                }
+
+                var response = await _apiService.ObtenerHorariosMedicoAsync(medico.id_doctor);
                 if (response.success && response.data != null)
                 {
-                    // Convertir strings a TimeSpan si es necesario
-                    foreach (var horario in response.data)
+                    // Convertir a HorarioMedicoDetallado
+                    medico.horarios = response.data.Select(h => new HorarioMedicoDetallado
                     {
-                        // Si la API devuelve strings, convertirlas
-                        if (horario.hora_inicio == default(TimeSpan) && !string.IsNullOrEmpty(horario.hora_inicio.ToString()))
-                        {
-                            // La conversión ya está hecha si usas TimeSpan en el modelo
-                        }
-                    }
-                    medico.horarios = response.data;
+                        id_horario = h.id_horario,
+                        id_doctor = h.id_medico,
+                        dia_semana = h.dia_semana,
+                        hora_inicio = h.hora_inicio,
+                        hora_fin = h.hora_fin,
+                        duracion_cita = h.duracion_consulta,
+                        nombre_sucursal = h.nombre_sucursal ?? "Sucursal N/A",
+                        // 🔥 CORREGIDO: usar nombre_dia del API o calcular desde dia_semana
+                        nombre_dia = GetNombreDia(h.dia_semana)
+                    }).ToList();
+
+                    System.Diagnostics.Debug.WriteLine($"Médico {medico.nombre_completo} tiene {medico.horarios.Count} horarios cargados");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error cargando horarios: {response?.message}");
+                    medico.horarios = new List<HorarioMedicoDetallado>();
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error cargando horarios del médico {medico.id_doctor}: {ex.Message}");
-                medico.horarios = new List<HorarioMedicoDetallado>(); // Lista vacía para evitar null reference
+                System.Diagnostics.Debug.WriteLine($"Error cargando horarios para médico {medico?.nombre_completo}: {ex.Message}");
+                medico.horarios = new List<HorarioMedicoDetallado>();
             }
+        }
+
+        // 🔥 AGREGAR ESTE MÉTODO HELPER AL FINAL DE LA CLASE
+        private string GetNombreDia(int dia)
+        {
+            return dia switch
+            {
+                1 => "Lunes",
+                2 => "Martes",
+                3 => "Miércoles",
+                4 => "Jueves",
+                5 => "Viernes",
+                6 => "Sábado",
+                7 => "Domingo",
+                _ => "Desconocido"
+            };
         }
 
         private void MostrarMedicos()
@@ -128,182 +173,130 @@ namespace CitasMedicasApp.Views
             {
                 Orientation = StackOrientation.Horizontal,
                 Children =
-                {
-                    new Label
-                    {
-                        Text = "👨‍⚕️",
-                        FontSize = 30,
-                        VerticalOptions = LayoutOptions.Center
-                    },
-                    new StackLayout
-                    {
-                        HorizontalOptions = LayoutOptions.FillAndExpand,
-                        Children =
-                        {
-                            new Label
-                            {
-                                Text = medico.nombre_completo,
-                                FontSize = 18,
-                                FontAttributes = FontAttributes.Bold,
-                                TextColor = Color.FromHex("#2c3e50")
-                            },
-                            new Label
-                            {
-                                Text = $"Cédula: {medico.cedula}",
-                                FontSize = 14,
-                                TextColor = Color.FromHex("#7f8c8d")
-                            },
-                            new Label
-                            {
-                                Text = $"Especialidad: {medico.nombre_especialidad}",
-                                FontSize = 14,
-                                TextColor = Color.FromHex("#3498db"),
-                                FontAttributes = FontAttributes.Bold
-                            }
-                        }
-                    },
-                    new StackLayout
-                    {
-                        Children =
-                        {
-                            new Label
-                            {
-                                Text = medico.activo ? "🟢 Activo" : "🔴 Inactivo",
-                                FontSize = 12,
-                                HorizontalOptions = LayoutOptions.End
-                            }
-                        }
-                    }
-                }
-            };
-
-            mainStack.Children.Add(headerStack);
-
-            // Información de contacto
-            var contactoStack = new StackLayout
+        {
+            new Label
             {
-                Orientation = StackOrientation.Horizontal,
-                Spacing = 15,
+                Text = "👨‍⚕️",
+                FontSize = 30,
+                VerticalOptions = LayoutOptions.Center
+            },
+            new StackLayout
+            {
+                HorizontalOptions = LayoutOptions.FillAndExpand,
                 Children =
                 {
                     new Label
                     {
-                        Text = $"📧 {medico.email}",
-                        FontSize = 12,
-                        TextColor = Color.FromHex("#555")
+                        Text = medico.nombre_completo ?? $"{medico.nombre} {medico.apellido}",
+                        FontSize = 18,
+                        FontAttributes = FontAttributes.Bold,
+                        TextColor = Color.FromHex("#2c3e50")
                     },
                     new Label
                     {
-                        Text = $"📱 {medico.telefono}",
+                        Text = $"🆔 Cédula: {medico.cedula ?? "N/A"}",
                         FontSize = 12,
-                        TextColor = Color.FromHex("#555")
+                        TextColor = Color.FromHex("#7f8c8d")
                     }
                 }
+            },
+            new Label
+            {
+                Text = medico.activo ? "✅" : "❌",
+                FontSize = 20,
+                VerticalOptions = LayoutOptions.Center
+            }
+        }
             };
-            mainStack.Children.Add(contactoStack);
+            mainStack.Children.Add(headerStack);
 
-            // Sección de horarios
-            if (medico.horarios != null && medico.horarios.Count > 0)
+            // Información del médico
+            var infoStack = new StackLayout
             {
-                var horariosLabel = new Label
-                {
-                    Text = "📅 HORARIOS DE ATENCIÓN:",
-                    FontSize = 14,
-                    FontAttributes = FontAttributes.Bold,
-                    TextColor = Color.FromHex("#34495e"),
-                    Margin = new Thickness(0, 10, 0, 5)
-                };
-                mainStack.Children.Add(horariosLabel);
-
-                var horariosFrame = new Frame
-                {
-                    BackgroundColor = Color.FromHex("#ecf0f1"),
-                    CornerRadius = 8,
-                    Padding = 10,
-                    HasShadow = false
-                };
-
-                var horariosStack = new StackLayout { Spacing = 5 };
-
-                var horariosAgrupados = medico.horarios
-                    .Where(h => h.activo)
-                    .GroupBy(h => h.id_sucursal)
-                    .ToList();
-
-                foreach (var sucursalGroup in horariosAgrupados)
-                {
-                    var sucursalLabel = new Label
-                    {
-                        Text = $"🏥 {sucursalGroup.First().nombre_sucursal}:",
-                        FontAttributes = FontAttributes.Bold,
-                        FontSize = 12,
-                        TextColor = Color.FromHex("#2c3e50")
-                    };
-                    horariosStack.Children.Add(sucursalLabel);
-
-                    foreach (var horario in sucursalGroup.OrderBy(h => h.dia_semana))
-                    {
-                        var horarioLabel = new Label
-                        {
-                            Text = $"   • {DiasSemana.Dias[horario.dia_semana]}: {horario.hora_inicio} - {horario.hora_fin} ({horario.duracion_cita}min)",
-                            FontSize = 11,
-                            TextColor = Color.FromHex("#555"),
-                            Margin = new Thickness(10, 0, 0, 0)
-                        };
-                        horariosStack.Children.Add(horarioLabel);
-                    }
-                }
-
-                horariosFrame.Content = horariosStack;
-                mainStack.Children.Add(horariosFrame);
-            }
-            else
+                Spacing = 5,
+                Children =
+        {
+            new Label
             {
-                var noHorariosLabel = new Label
-                {
-                    Text = "⚠️ Sin horarios asignados",
-                    FontSize = 12,
-                    TextColor = Color.FromHex("#e74c3c"),
-                    FontAttributes = FontAttributes.Italic
-                };
-                mainStack.Children.Add(noHorariosLabel);
+                Text = $"📧 Email: {medico.email ?? "No especificado"}",
+                FontSize = 14,
+                TextColor = Color.FromHex("#34495e")
+            },
+            new Label
+            {
+                Text = $"📞 Teléfono: {medico.telefono ?? "No especificado"}",
+                FontSize = 14,
+                TextColor = Color.FromHex("#34495e")
+            },
+            new Label
+            {
+                Text = $"🩺 Especialidad: {medico.nombre_especialidad ?? "No especificada"}",
+                FontSize = 14,
+                TextColor = Color.FromHex("#3498db"),
+                FontAttributes = FontAttributes.Bold
             }
+        }
+            };
+            mainStack.Children.Add(infoStack);
+
+            // Información de horarios
+            var horariosCount = medico.horarios?.Count ?? 0;
+            var horariosLabel = new Label
+            {
+                Text = horariosCount > 0
+                    ? $"🕒 Horarios asignados: {horariosCount}"
+                    : "⚠️ Sin horarios asignados",
+                FontSize = 14,
+                TextColor = horariosCount > 0 ? Color.FromHex("#27ae60") : Color.FromHex("#e74c3c"),
+                FontAttributes = FontAttributes.Bold
+            };
+            mainStack.Children.Add(horariosLabel);
 
             // Botones de acción
             var botonesStack = new StackLayout
             {
                 Orientation = StackOrientation.Horizontal,
-                HorizontalOptions = LayoutOptions.End,
                 Spacing = 10,
-                Margin = new Thickness(0, 10, 0, 0),
+                HorizontalOptions = LayoutOptions.Center,
                 Children =
-                {
-                    new Button
-                    {
-                        Text = "Ver Detalles",
-                        BackgroundColor = Color.FromHex("#3498db"),
-                        TextColor = Color.White,
-                        CornerRadius = 15,
-                        FontSize = 12,
-                        Padding = new Thickness(15, 8),
-                        CommandParameter = medico
-                    },
-                    new Button
-                    {
-                        Text = "Editar Horarios",
-                        BackgroundColor = Color.FromHex("#f39c12"),
-                        TextColor = Color.White,
-                        CornerRadius = 15,
-                        FontSize = 12,
-                        Padding = new Thickness(15, 8),
-                        CommandParameter = medico
-                    }
-                }
+        {
+            new Button
+            {
+                Text = "👁️ Ver Detalles",
+                BackgroundColor = Color.FromHex("#3498db"),
+                TextColor = Color.White,
+                CornerRadius = 20,
+                FontSize = 12,
+                Padding = new Thickness(15, 8),
+                CommandParameter = medico
+            },
+            new Button
+            {
+                Text = "🕒 Editar Horarios",
+                BackgroundColor = Color.FromHex("#f39c12"),
+                TextColor = Color.White,
+                CornerRadius = 20,
+                FontSize = 12,
+                Padding = new Thickness(15, 8),
+                CommandParameter = medico
+            }
+        }
             };
 
             // Asignar eventos a los botones
-            ((Button)botonesStack.Children[0]).Clicked += (s, e) => OnVerDetallesClicked(medico);
-            ((Button)botonesStack.Children[1]).Clicked += (s, e) => OnEditarHorariosClicked(medico);
+            ((Button)botonesStack.Children[0]).Clicked += (s, e) =>
+            {
+                var btn = s as Button;
+                var medicoParam = btn.CommandParameter as MedicoCompleto;
+                OnVerDetallesClicked(medicoParam);
+            };
+
+            ((Button)botonesStack.Children[1]).Clicked += (s, e) =>
+            {
+                var btn = s as Button;
+                var medicoParam = btn.CommandParameter as MedicoCompleto;
+                OnEditarHorariosClicked(medicoParam);
+            };
 
             mainStack.Children.Add(botonesStack);
             frame.Content = mainStack;
@@ -313,40 +306,93 @@ namespace CitasMedicasApp.Views
 
         private async void OnVerDetallesClicked(MedicoCompleto medico)
         {
-            await DisplayAlert("Detalles del Médico",
-                $"Nombre: {medico.nombre_completo}\n" +
-                $"Cédula: {medico.cedula}\n" +
-                $"Email: {medico.email}\n" +
-                $"Teléfono: {medico.telefono}\n" +
-                $"Especialidad: {medico.nombre_especialidad}\n" +
-                $"Estado: {(medico.activo ? "Activo" : "Inactivo")}\n" +
-                $"Total Horarios: {medico.horarios?.Count ?? 0}",
+            if (medico == null) return;
+
+            var horariosTexto = "";
+            if (medico.horarios != null && medico.horarios.Any())
+            {
+                horariosTexto = "\n\n📋 HORARIOS:\n";
+                foreach (var horario in medico.horarios.Take(5)) // Mostrar máximo 5 horarios
+                {
+                    horariosTexto += $"• {horario.nombre_dia ?? "Día N/A"}: {horario.hora_inicio:hh\\:mm} - {horario.hora_fin:hh\\:mm} ({horario.nombre_sucursal ?? "Sucursal N/A"})\n";
+                }
+                if (medico.horarios.Count > 5)
+                {
+                    horariosTexto += $"... y {medico.horarios.Count - 5} horarios más";
+                }
+            }
+            else
+            {
+                horariosTexto = "\n\n⚠️ Sin horarios asignados";
+            }
+
+            await DisplayAlert(
+                $"👨‍⚕️ {medico.nombre_completo}",
+                $"🆔 Cédula: {medico.cedula ?? "N/A"}\n" +
+                $"📧 Email: {medico.email ?? "No especificado"}\n" +
+                $"📞 Teléfono: {medico.telefono ?? "No especificado"}\n" +
+                $"🩺 Especialidad: {medico.nombre_especialidad ?? "No especificada"}\n" +
+                $"📊 Estado: {(medico.activo ? "Activo" : "Inactivo")}\n" +
+                $"🕒 Total Horarios: {medico.horarios?.Count ?? 0}" +
+                horariosTexto,
                 "Cerrar");
         }
 
         private async void OnEditarHorariosClicked(MedicoCompleto medico)
         {
-            await Shell.Current.GoToAsync($"editarhorarios?medicoId={medico.id_doctor}&nombreMedico={medico.nombre_completo}");
+            try
+            {
+                if (medico?.id_doctor == null)
+                {
+                    await DisplayAlert("Error", "ID del médico no válido", "OK");
+                    return;
+                }
+
+                // Usar la propiedad calculada directamente (no asignar)
+                var nombreCompleto = medico.nombre_completo;
+                if (string.IsNullOrEmpty(nombreCompleto))
+                {
+                    nombreCompleto = $"{medico.nombre} {medico.apellido}".Trim();
+                }
+
+                // Usar PushModalAsync en lugar de Shell navigation
+                var editarHorariosPage = new EditarHorariosPage(medico.id_doctor, nombreCompleto);
+                await Navigation.PushModalAsync(new NavigationPage(editarHorariosPage));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error navegando a editar horarios: {ex.Message}");
+                await DisplayAlert("Error", $"Error al abrir edición de horarios: {ex.Message}", "OK");
+            }
         }
 
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(e.NewTextValue))
+            try
             {
-                _medicosFiltrados = new List<MedicoCompleto>(_todosMedicos);
-            }
-            else
-            {
-                var textoBusqueda = e.NewTextValue.ToLower();
-                _medicosFiltrados = _todosMedicos.Where(m =>
-                    m.nombre_completo.ToLower().Contains(textoBusqueda) ||
-                    m.cedula.Contains(textoBusqueda) ||
-                    m.email.ToLower().Contains(textoBusqueda) ||
-                    m.nombre_especialidad.ToLower().Contains(textoBusqueda)
-                ).ToList();
-            }
+                if (string.IsNullOrWhiteSpace(e.NewTextValue))
+                {
+                    _medicosFiltrados = _todosMedicos?.ToList() ?? new List<MedicoCompleto>();
+                }
+                else
+                {
+                    var textoBusqueda = e.NewTextValue.ToLower();
+                    var medicosParaFiltrar = _todosMedicos ?? new List<MedicoCompleto>();
+                    _medicosFiltrados = medicosParaFiltrar.Where(m =>
+                        (m.nombre_completo?.ToLower().Contains(textoBusqueda) ?? false) ||
+                        (m.cedula?.Contains(textoBusqueda) ?? false) ||
+                        (m.email?.ToLower().Contains(textoBusqueda) ?? false) ||
+                        (m.nombre_especialidad?.ToLower().Contains(textoBusqueda) ?? false)
+                    ).ToList();
+                }
 
-            MostrarMedicos();
+                MostrarMedicos();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error en búsqueda: {ex.Message}");
+                ShowMessage("Error al filtrar médicos", false);
+            }
         }
 
         private void OnRefreshClicked(object sender, EventArgs e)

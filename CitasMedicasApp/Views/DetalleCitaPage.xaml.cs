@@ -3,6 +3,8 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using CitasMedicasApp.Models;
 using CitasMedicasApp.Services;
+using CitasMedicasApp.Helpers;
+using System.Threading.Tasks;
 
 namespace CitasMedicasApp.Views
 {
@@ -285,6 +287,11 @@ namespace CitasMedicasApp.Views
         private async System.Threading.Tasks.Task VerHistorial()
         {
             await DisplayAlert("🚧 En Desarrollo", "Funcionalidad de historial médico en desarrollo", "OK");
+        }
+        private async Task VerDetalleCita(Cita cita)
+        {
+            var page = new DetalleCitaPage(cita);
+            await NavigationHelper.NavigateToPageAsync(Navigation, page);
         }
     }
 }

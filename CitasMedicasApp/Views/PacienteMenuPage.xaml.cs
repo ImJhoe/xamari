@@ -25,7 +25,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanViewMyCitas)
             {
-                await Navigation.PushAsync(new VerCitasPage(soloMisCitas: true));
+                await Navigation.PushModalAsync(new NavigationPage(new VerCitasPage(soloMisCitas: true)));
             }
             else
             {
@@ -37,7 +37,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanViewMyCitas)
             {
-                await Navigation.PushAsync(new ProximaCitaPage());
+                await Navigation.PushModalAsync(new NavigationPage(new ProximaCitaPage()));
             }
             else
             {
@@ -48,7 +48,7 @@ namespace CitasMedicasApp.Views
         // ============ MI INFORMACIÓN ============
         private async void OnMiPerfilClicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new PerfilPacientePage());
+            await Navigation.PushModalAsync(new NavigationPage(new PerfilPacientePage()));
         }
 
         private async void OnMiHistorialClicked(object sender, EventArgs e)

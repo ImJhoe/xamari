@@ -631,7 +631,7 @@ namespace CitasMedicasApp.Views
         // ============ ACCIONES DE CITAS ============
         private async Task VerDetalleCita(Cita cita)
         {
-            await Navigation.PushAsync(new DetalleCitaPage(cita));
+            await Navigation.PushModalAsync(new NavigationPage(new DetalleCitaPage(cita)));
         }
 
         private async Task EditarCita(Cita cita)

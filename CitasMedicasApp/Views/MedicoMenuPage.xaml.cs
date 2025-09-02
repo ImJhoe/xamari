@@ -25,7 +25,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanConsultMedicos)
             {
-                await Navigation.PushAsync(new ConsultarMedicoPage());
+                await Navigation.PushModalAsync(new NavigationPage(new ConsultarMedicoPage()));
             }
             else
             {
@@ -38,7 +38,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanManageSchedules)
             {
-                await Navigation.PushAsync(new GestionHorariosPage());
+                await Navigation.PushModalAsync(new NavigationPage(new GestionHorariosPage()));
             }
             else
             {
@@ -51,7 +51,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanViewMyCitas)
             {
-                await Navigation.PushAsync(new VerCitasPage(filtrarPorMedico: true, soloHoy: true));
+                await Navigation.PushModalAsync(new NavigationPage(new VerCitasPage(filtrarPorMedico: true, soloHoy: true)));
             }
             else
             {
@@ -63,7 +63,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanViewMyCitas)
             {
-                await Navigation.PushAsync(new VerCitasPage(filtrarPorMedico: true, soloHoy: false));
+                await Navigation.PushModalAsync(new NavigationPage(new VerCitasPage(filtrarPorMedico: true, soloHoy: false)));
             }
             else
             {

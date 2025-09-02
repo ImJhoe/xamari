@@ -26,7 +26,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanCreateCitas)
             {
-                await Navigation.PushAsync(new CrearCitaPage());
+                await Navigation.PushModalAsync(new NavigationPage(new CrearCitaPage()));
             }
             else
             {
@@ -40,7 +40,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanSearchPatients)
             {
-                await Navigation.PushAsync(new BuscarPacientePage());
+                await Navigation.PushModalAsync(new NavigationPage(new BuscarPacientePage()));
             }
             else
             {
@@ -53,7 +53,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanRegisterPatients)
             {
-                await Navigation.PushAsync(new RegistroPacientePage());
+                await Navigation.PushModalAsync(new NavigationPage(new RegistroPacientePage()));
             }
             else
             {
@@ -82,7 +82,8 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanViewMedicSchedules)
             {
-                await Navigation.PushAsync(new HorariosMedicosPage());
+              //  await Navigation.PushModalAsync(new NavigationPage(new RegistroPacientePage()));
+                await Navigation.PushModalAsync(new  NavigationPage(new  HorariosMedicosPage()));
             }
             else
             {
@@ -93,7 +94,8 @@ namespace CitasMedicasApp.Views
         // ============ VER CITAS ============
         private async void OnVerCitasClicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new VerCitasPage());
+            await Navigation.PushModalAsync(new NavigationPage(new VerCitasPage()));
+           // await Navigation.PushAsync(new VerCitasPage());
         }
 
         // ============ CERRAR SESIÓN ============

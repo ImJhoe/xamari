@@ -2,6 +2,7 @@
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using CitasMedicasApp.Services;
+using CitasMedicasApp.Helpers;
 
 namespace CitasMedicasApp.Views
 {
@@ -20,12 +21,12 @@ namespace CitasMedicasApp.Views
             RoleLabel.Text = $"{UserSessionManager.GetUserRole()} - Acceso completo al sistema";
         }
 
-        // ============ GESTIÓN DE MÉDICOS ============
+        // Cambiar TODOS los PushAsync por:
         private async void OnRegistrarMedicoClicked(object sender, EventArgs e)
         {
             if (UserSessionManager.CanRegisterMedicos)
             {
-                await Navigation.PushAsync(new RegistroMedicoPage());
+                await Navigation.PushModalAsync(new NavigationPage(new RegistroMedicoPage()));
             }
             else
             {
@@ -37,7 +38,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanConsultMedicos)
             {
-                await Navigation.PushAsync(new ConsultarMedicoPage());
+                await Navigation.PushModalAsync(new NavigationPage(new ConsultarMedicoPage()));
             }
             else
             {
@@ -50,7 +51,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanCreateCitas)
             {
-                await Navigation.PushAsync(new CrearCitaPage());
+                await Navigation.PushModalAsync(new NavigationPage(new CrearCitaPage()));
             }
             else
             {
@@ -62,7 +63,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanViewAllCitas)
             {
-                await Navigation.PushAsync(new VerCitasPage());
+                await Navigation.PushModalAsync(new NavigationPage(new VerCitasPage()));
             }
             else
             {
@@ -75,7 +76,7 @@ namespace CitasMedicasApp.Views
         {
             if (UserSessionManager.CanRegisterPatients)
             {
-                await Navigation.PushAsync(new RegistroPacientePage());
+                await Navigation.PushModalAsync(new NavigationPage(new RegistroPacientePage()));
             }
             else
             {

@@ -11,7 +11,7 @@ using CitasMedicasApp.Models;
 public class ApiService
 {
     private readonly HttpClient _httpClient;
-    private readonly string _baseUrl = "http://192.168.21.111:8081/webservice-slim";
+    private readonly string _baseUrl = "http://192.168.1.8:8081/webservice-slim";
 
     public ApiService()
     {
@@ -177,15 +177,18 @@ public class ApiService
         {
             var data = new
             {
+                nombres = medico.nombre,
+                apellidos = medico.apellido,
                 cedula = medico.cedula,
-                nombre = medico.nombre,
-                apellido = medico.apellido,
-                email = medico.email,
+                correo = medico.email,
+                contrasena = password,
                 telefono = medico.telefono,
                 especialidad = medico.especialidad,
-                password = password,
-                tipo_usuario = "medico"
+                tipo_usuario = medico.tipo_usuario
             };
+
+            System.Diagnostics.Debug.WriteLine($"=== REGISTRANDO MÉDICO ===");
+            System.Diagnostics.Debug.WriteLine($"Datos enviados: {JsonConvert.SerializeObject(data, Formatting.Indented)}");
 
             var json = JsonConvert.SerializeObject(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -193,10 +196,13 @@ public class ApiService
             var response = await _httpClient.PostAsync($"{_baseUrl}/api/medicos", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
+            System.Diagnostics.Debug.WriteLine($"Respuesta API registro: {responseContent}");
+
             return JsonConvert.DeserializeObject<ApiResponse<Usuario>>(responseContent);
         }
         catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"Error registrando médico: {ex}");
             return new ApiResponse<Usuario>
             {
                 success = false,
@@ -631,11 +637,14 @@ public class ApiService
             {
                 id_medico = horario.id_medico,
                 id_sucursal = horario.id_sucursal,
-                dia_semana = horario.dia_semana, // Ya es int, no convertir
-                hora_inicio = horario.hora_inicio.ToString(@"hh\:mm\:ss"), // Formato correcto
-                hora_fin = horario.hora_fin.ToString(@"hh\:mm\:ss"), // Formato correcto
-                duracion_consulta = horario.duracion_consulta // CAMBIAR de duracion_cita a duracion_consulta
+                dia_semana = horario.dia_semana,
+                hora_inicio = horario.hora_inicio.ToString(@"hh\:mm\:ss"),
+                hora_fin = horario.hora_fin.ToString(@"hh\:mm\:ss"),
+                duracion_cita = horario.duracion_consulta // 🔥 CAMBIAR: usar duracion_cita (no duracion_consulta)
             };
+
+            // Debug para ver qué se está enviando
+            System.Diagnostics.Debug.WriteLine($"Enviando horario: {JsonConvert.SerializeObject(data, Formatting.Indented)}");
 
             var json = JsonConvert.SerializeObject(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -643,10 +652,13 @@ public class ApiService
             var response = await _httpClient.PostAsync($"{_baseUrl}/api/horarios", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
+            System.Diagnostics.Debug.WriteLine($"Respuesta API: {responseContent}");
+
             return JsonConvert.DeserializeObject<ApiResponse<object>>(responseContent);
         }
         catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"Error en AsignarHorarioIndividualAsync: {ex}");
             return new ApiResponse<object>
             {
                 success = false,

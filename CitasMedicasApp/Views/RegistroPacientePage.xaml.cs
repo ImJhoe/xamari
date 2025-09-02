@@ -126,7 +126,7 @@ namespace CitasMedicasApp.Views
                             "Continuar");
 
                         // Navegar a CrearCitaPage con la cédula del paciente recién creado
-                        await Navigation.PushAsync(new CrearCitaPage(nuevoPaciente.cedula, true));
+                        await Navigation.PushModalAsync(new NavigationPage(new CrearCitaPage(nuevoPaciente.cedula, true)));
 
                         // Limpiar el stack de navegación para evitar loops
                         var existingPages = Navigation.NavigationStack.ToList();
